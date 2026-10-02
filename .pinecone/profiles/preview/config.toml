@@ -1,0 +1,26 @@
+label = "Site Preview"
+description = "Edit and preview the Personal Agent Protocol Next.js site"
+group = "Apps"
+agency_template = "pinecone-v2"
+keywords = ["personal agent protocol", "website", "next.js", "preview"]
+
+primary_service = "web"
+
+[services.web]
+command = ["sh", "-c", "pnpm install --frozen-lockfile && exec pnpm dev --port 8083"]
+
+[services.web.health]
+scheme = "http"
+host = "127.0.0.1:8083"
+path = "/"
+interval_ms = 5000
+timeout_ms = 3000
+startup_grace_ms = 10000
+startup_timeout_ms = 180000
+
+[services.web.restart_policy]
+condition = "disabled"
+
+[[quick_links]]
+name = "Site Preview"
+url = "{scheme}://{agent}.{domain}"

@@ -1,0 +1,13 @@
+{
+    "tabWidth": 4,
+    "printWidth": 100,
+    "trailingComma": "all",
+    "overrides": [
+        {
+            "files": "*.mdx",
+            "options": {
+                "embeddedLanguageFormatting": "off"
+            }
+        }
+    ]
+}

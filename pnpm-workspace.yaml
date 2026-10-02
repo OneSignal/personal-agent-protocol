@@ -1,0 +1,6 @@
+packages:
+    - .
+minimumReleaseAge: 5760
+overrides:
+    # GHSA-68fv-2mgg-jv7q, pulled in by next > postcss. Remove once Next.js ships source-map-js >=1.2.2.
+    source-map-js: ">=1.2.2"

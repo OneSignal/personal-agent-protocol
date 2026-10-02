@@ -1,0 +1,131 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "redirects": [
+        {
+            "source": "/:path*",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "personalagentprotocol\\.ai"
+                }
+            ],
+            "destination": "https://personalagentprotocol.org/:path*",
+            "permanent": true
+        },
+        {
+            "source": "/:path*",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "personalagentprotocol\\.net"
+                }
+            ],
+            "destination": "https://personalagentprotocol.org/:path*",
+            "permanent": true
+        },
+        {
+            "source": "/:path*",
+            "has": [
+                {
+                    "type": "host",
+                    "value": "personalagentprotocol\\.com"
+                }
+            ],
+            "destination": "https://personalagentprotocol.org/:path*",
+            "permanent": true
+        },
+        {
+            "source": "/",
+            "has": [
+                {
+                    "type": "query",
+                    "key": "page",
+                    "value": "spec"
+                }
+            ],
+            "destination": "/docs/spec",
+            "permanent": true
+        },
+        {
+            "source": "/docs",
+            "destination": "/docs/introduction",
+            "permanent": false
+        },
+        {
+            "source": "/:page(spec|guides|extensions)",
+            "destination": "/docs/:page",
+            "permanent": true
+        },
+        {
+            "source": "/:page(spec|guides|extensions).md",
+            "destination": "/docs/:page.md",
+            "permanent": true
+        },
+        {
+            "source": "/overview",
+            "destination": "/docs/introduction",
+            "permanent": true
+        },
+        {
+            "source": "/overview.md",
+            "destination": "/docs/introduction.md",
+            "permanent": true
+        },
+        {
+            "source": "/docs/overview",
+            "destination": "/docs/introduction",
+            "permanent": true
+        },
+        {
+            "source": "/docs/overview.md",
+            "destination": "/docs/introduction.md",
+            "permanent": true
+        },
+        {
+            "source": "/docs/open-topics",
+            "destination": "/docs/path-to-1#open-topics",
+            "permanent": true
+        },
+        {
+            "source": "/docs/open-topics.md",
+            "destination": "/docs/path-to-1.md",
+            "permanent": true
+        },
+        {
+            "source": "/extensions/:path*",
+            "destination": "/docs/extensions/:path*",
+            "permanent": true
+        }
+    ],
+    "headers": [
+        {
+            "source": "/(.*)",
+            "headers": [
+                {
+                    "key": "Strict-Transport-Security",
+                    "value": "max-age=63072000; includeSubDomains"
+                },
+                {
+                    "key": "X-Content-Type-Options",
+                    "value": "nosniff"
+                },
+                {
+                    "key": "Referrer-Policy",
+                    "value": "strict-origin-when-cross-origin"
+                },
+                {
+                    "key": "X-Frame-Options",
+                    "value": "DENY"
+                },
+                {
+                    "key": "Content-Security-Policy",
+                    "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'; font-src 'self'; media-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests"
+                },
+                {
+                    "key": "Permissions-Policy",
+                    "value": "camera=(), microphone=(), geolocation=()"
+                }
+            ]
+        }
+    ]
+}

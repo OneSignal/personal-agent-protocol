@@ -1,0 +1,81 @@
+# Personal Agent Protocol
+
+Source for [personalagentprotocol.org](https://personalagentprotocol.org), the site that publishes
+the Personal Agent Protocol draft specification and its docs. The protocol lets personal agents
+discover participating companies, sign users in, and get things done through APIs, web pages, and
+company agents.
+
+The site is a Next.js static export. It documents the protocol but does not implement the APIs the
+specification describes.
+
+## Development
+
+Use Node.js 20.9 or newer and pnpm 10.34.0. Dependencies install from the public npm registry.
+
+```sh
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+The site opens at `http://localhost:3000`. Before sending a change, run:
+
+```sh
+pnpm typecheck
+pnpm format:check
+pnpm build
+```
+
+The production build writes the static site to `out/`. Serve that directory with any static host.
+
+`pnpm-workspace.yaml` sets `minimumReleaseAge`, so pnpm won't install a package version until it
+has been published for four days.
+
+## Pages
+
+- `/`: the overview, with interactive walkthroughs
+- `/docs/introduction`, `/docs/spec`, `/docs/extensions`, `/docs/extensions/operations`,
+  `/docs/guides`, `/docs/path-to-1`: the docs
+- `/license` and `/license/contributions`: the license and the contribution terms
+
+Each docs page is also served as Markdown at the same path with `.md`, for example
+`/docs/spec.md`. `/docs/personal-agent-protocol-docs.zip` bundles the docs with instructions for an
+AI agent to review them. Section links use a fragment, for example `/docs/spec#sessions`. The site
+also serves `/robots.txt` and `/sitemap.xml`, and unknown paths show a 404 page.
+
+## Structure
+
+- `app/`: Next.js routes, metadata, and the stylesheet.
+- `components/`: navigation, walkthroughs, code blocks, and review comments.
+- `content/`: the docs pages as MDX, `docs.ts` (the index of docs tabs and pages), the home page,
+  and the walkthrough data.
+- `lib/`: the MDX pipeline (`mdx.ts`, `mdx-markdown.ts`, `docs-content.ts`), the docs outline, the
+  review kit, syntax highlighting, and analytics.
+- `public/`: the logo, link preview image, pronunciation clip, and the license text.
+
+## Editing the docs
+
+See [`AGENTS.md`](AGENTS.md) for how the docs content is written and where each page comes from.
+
+## Hosting
+
+On Vercel, `vercel.json` permanently redirects `personalagentprotocol.ai`,
+`personalagentprotocol.net`, and `personalagentprotocol.com` to `https://personalagentprotocol.org`,
+keeping paths and query strings. It also redirects older page URLs to their current paths and sets
+security headers on every response: HSTS, `nosniff`, a strict referrer policy, a ban on framing
+the site, and a Content Security Policy that loads everything from the site itself.
+
+Other static hosts need equivalent configuration. `pnpm dev` does not apply Vercel rules. On other
+hosts, a small script on the home page sends old `/?page=spec` links to `/docs/spec`.
+
+## Feedback and contributions
+
+The specification is a draft. To send feedback, see
+[How to give feedback](https://personalagentprotocol.org/docs/path-to-1#feedback) on the Path to
+1.0 page. To change this repository, see [CONTRIBUTING.md](CONTRIBUTING.md). Contributions are
+accepted under the [contribution terms](https://personalagentprotocol.org/license/contributions).
+
+## License
+
+The specification and documentation are licensed under the [Apache License 2.0](LICENSE). The
+license doesn't cover the names Personal Agent Protocol and Poppy, the logo, or the design of the
+site.

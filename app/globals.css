@@ -1,0 +1,2720 @@
+:root {
+    --bg: #ffffff;
+    --bg-soft: #f7f7f5;
+    --bg-sunk: #f1f0ec;
+    --ink: #111110;
+    --ink-2: #3d3d3a;
+    --ink-3: #6f6e69;
+    --line: #e4e3de;
+    --line-2: #d4d3cc;
+    --accent: #1f4e8c;
+    --accent-2: #183f72;
+    --accent-soft: #edf2f8;
+    --green: #2b8a3e;
+    --green-soft: #ebfbee;
+    --amber: #b35c00;
+    --amber-soft: #fff4e6;
+    --violet: #6741d9;
+    --violet-soft: #f3f0ff;
+    --red: #c92a2a;
+    --red-soft: #fff5f5;
+    --code-bg: #0f1115;
+    --code-ink: #d7dae0;
+    --radius: 6px;
+    --radius-sm: 4px;
+    --shadow: 0 4px 12px rgba(17, 17, 16, 0.08);
+    --font: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: var(--font-mono), ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --maxw: 1160px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px;
+    /* Keep the layout from shifting between short and long pages. */
+    scrollbar-gutter: stable;
+}
+
+/* Docs pages are long, so the left navigation jumps straight to a section. */
+html:has(.docs-layout) {
+    scroll-behavior: auto;
+    scroll-padding-top: 124px;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+    font-weight: 600;
+}
+
+h1,
+h2 {
+    letter-spacing: -0.015em;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Links in running text are underlined so they don't rely on color alone. */
+.doc a {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    text-decoration-thickness: 1px;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 100;
+    padding: 8px 12px;
+    color: #fff;
+    background: var(--ink);
+    border-radius: var(--radius);
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
+code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--bg-sunk);
+    border-radius: 3px;
+    padding: 0.08em 0.3em;
+}
+
+.wrap {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+/* ---------- Header ---------- */
+
+.site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+}
+
+.site-header .wrap {
+    display: flex;
+    align-items: center;
+    height: 64px;
+    gap: 28px;
+}
+
+/* The top row grows when the name wraps on narrow phones, instead of spilling out. */
+.site-header > .wrap {
+    height: auto;
+    min-height: 64px;
+    padding-block: 8px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 650;
+    color: var(--ink);
+    letter-spacing: 0;
+    min-width: 0;
+}
+
+.brand:hover {
+    text-decoration: none;
+}
+
+.brand > a {
+    display: flex;
+}
+
+.brand-name {
+    font-size: 21px;
+    line-height: 1.2;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--ink);
+}
+
+.brand-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-logo img {
+    flex-shrink: 0;
+    display: block;
+}
+
+.brand-name:hover {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.doc-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink-3);
+    white-space: nowrap;
+}
+
+.draft-badge {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--amber-soft);
+    color: #9c4f00;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.nav {
+    display: flex;
+    gap: 22px;
+    margin-left: auto;
+    font-size: 14px;
+}
+
+.nav a {
+    color: var(--ink-2);
+}
+
+.nav a:hover {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.header-end {
+    margin-left: auto;
+}
+
+/* Docs tabs: a second header row on docs pages. */
+.docs-tabs {
+    border-top: 1px solid var(--line);
+}
+
+.docs-tabs .wrap {
+    display: flex;
+    align-items: stretch;
+    gap: 28px;
+    height: 44px;
+    font-size: 14px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.docs-tabs a {
+    display: flex;
+    align-items: center;
+    color: var(--ink-3);
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+}
+
+.docs-tabs a:hover {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+/* Inside the ring so the scrolling row doesn't clip it. */
+.docs-tabs a:focus-visible {
+    outline-offset: -2px;
+}
+
+/* Color only, not weight, so the tabs don't change width. */
+.docs-tabs a.active {
+    color: var(--ink);
+    border-bottom-color: var(--accent);
+}
+
+/* Buttons. Use the Button and ButtonLink components rather than these classes directly. */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    border-radius: var(--radius);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition:
+        background 0.15s,
+        border-color 0.15s,
+        color 0.15s;
+}
+
+.btn-md {
+    height: 40px;
+    padding: 0 16px;
+    font-size: 15px;
+}
+
+.btn-sm {
+    height: 30px;
+    padding: 0 10px;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.btn-icon {
+    padding: 0;
+}
+
+.btn-md.btn-icon {
+    width: 40px;
+}
+
+.btn-sm.btn-icon {
+    width: 30px;
+}
+
+.btn[disabled] {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.btn:hover {
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--ink);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #2a2a28;
+}
+
+.btn-secondary {
+    background: #fff;
+    color: var(--ink);
+    border-color: var(--line-2);
+}
+
+.btn-secondary:hover {
+    border-color: var(--ink-3);
+}
+
+.btn-ghost {
+    background: none;
+    color: var(--ink-2);
+}
+
+.btn-ghost:hover:not([disabled]),
+.btn-ghost[aria-expanded="true"],
+.btn-ghost[aria-pressed="true"] {
+    background: var(--bg-sunk);
+    color: var(--ink);
+}
+
+/* Tooltips. Put the text in data-tip on a button, and still give icon-only buttons an aria-label.
+   They show above the element, and data-tip-end lines them up with its right edge instead of its
+   center, for elements near the right of the window. */
+
+[data-tip] {
+    position: relative;
+}
+
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    z-index: 70;
+    padding: 5px 8px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    white-space: nowrap;
+    color: #fff;
+    background: var(--ink);
+    border-radius: var(--radius-sm);
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.1s ease;
+}
+
+[data-tip-end]::after {
+    left: auto;
+    right: 0;
+    transform: none;
+}
+
+[data-tip]:focus-visible::after {
+    opacity: 1;
+}
+
+/* Only where there's a mouse: on touch screens, :hover sticks after a tap. */
+@media (hover: hover) {
+    [data-tip]:hover::after {
+        opacity: 1;
+        transition-delay: 0.3s;
+    }
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+}
+
+.hero .wrap {
+    position: relative;
+    padding-top: 80px;
+    padding-bottom: 72px;
+}
+
+.hero .eyebrow {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--ink-3);
+    margin: 0 0 12px;
+}
+
+.hero h1 {
+    font-size: 44px;
+    line-height: 1.12;
+    letter-spacing: -0.005em;
+    margin: 0 0 20px;
+    max-width: 760px;
+}
+
+.hero p.lede {
+    font-size: 18px;
+    color: var(--ink-2);
+    margin: 0 0 32px;
+    max-width: 680px;
+}
+
+.hero-ctas {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Sections ---------- */
+
+section.block {
+    padding: 72px 0 88px;
+    border-bottom: 1px solid var(--line);
+}
+
+section.block.soft {
+    background: var(--bg-soft);
+}
+
+.section-head {
+    max-width: 680px;
+    margin-bottom: 40px;
+}
+
+.section-head h2 {
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+}
+
+.section-head p {
+    font-size: 17px;
+    color: var(--ink-2);
+    margin: 0;
+}
+
+#implement {
+    padding: 64px 0;
+}
+
+#implement .section-head {
+    margin-bottom: 24px;
+}
+
+.section-head p + p {
+    margin-top: 12px;
+}
+
+.section-head p strong {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.spectrum {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* The line runs between the centers of the first and last stops. */
+.spectrum::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: calc((100% - 96px) / 10);
+    right: calc((100% - 96px) / 10);
+    height: 2px;
+    background: var(--line-2);
+}
+
+.spectrum li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+}
+
+.spectrum .mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg);
+}
+
+.spectrum .mark img {
+    display: block;
+}
+
+.spectrum .end-dot {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--ink-3);
+    border-radius: 50%;
+}
+
+.spectrum .stop-text strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.spectrum .stop-text span {
+    font-size: 15px;
+    color: var(--ink-3);
+}
+
+.spectrum li.end strong {
+    color: var(--ink-3);
+}
+
+/* Parties */
+
+.parties {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.party {
+    border-top: 1px solid var(--ink);
+    padding-top: 16px;
+}
+
+.party h3 {
+    font-size: 22px;
+    margin: 0 0 2px;
+}
+
+.party .gets {
+    font-size: 15px;
+    color: var(--ink-3);
+    margin: 0 0 16px;
+}
+
+.party ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.party li {
+    font-size: 15px;
+    color: var(--ink-2);
+    padding: 12px 0;
+    border-top: 1px solid var(--line);
+}
+
+.party li strong {
+    color: var(--ink);
+    font-weight: 600;
+}
+
+/* Features */
+
+.feature-group {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--ink);
+}
+
+.feature-group + .feature-group {
+    margin-top: 56px;
+}
+
+.feature-group-head h3 {
+    font-size: 22px;
+    margin: 0 0 6px;
+}
+
+.feature-group-head p {
+    font-size: 15px;
+    color: var(--ink-3);
+    margin: 0;
+}
+
+.feature {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 24px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+}
+
+.feature:first-child {
+    border-top: none;
+    padding-top: 4px;
+}
+
+.feature h3 {
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.feature p {
+    font-size: 15px;
+    color: var(--ink-2);
+    margin: 0;
+}
+
+.chip {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 2px 10px;
+    white-space: nowrap;
+}
+
+.chip.allowed {
+    background: var(--green-soft);
+    color: var(--green);
+}
+
+.chip.approval {
+    background: var(--amber-soft);
+    color: var(--amber);
+}
+
+.chip.direct {
+    background: var(--violet-soft);
+    color: var(--violet);
+}
+
+.chip.unavailable {
+    background: var(--bg-sunk);
+    color: var(--ink-3);
+}
+
+/* ---------- Walkthroughs ---------- */
+
+.wt-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.wt-level {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+}
+
+.wt-tab.active .wt-level {
+    color: var(--accent-2);
+}
+
+.wt-summary {
+    color: var(--ink-2);
+    max-width: 760px;
+    margin: 0 0 28px;
+}
+
+.wt-tab {
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    background: #fff;
+    border: 1px solid var(--line-2);
+    color: var(--ink-2);
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    text-align: left;
+}
+
+.wt-tab.active {
+    border-color: var(--ink);
+    color: var(--ink);
+    box-shadow: 0 0 0 1px var(--ink);
+}
+
+.wt-stage {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 28px;
+    align-items: start;
+}
+
+/* Phone */
+
+.phone-col {
+    position: sticky;
+    top: 92px;
+}
+
+.phone {
+    background: #111;
+    border-radius: 44px;
+    padding: 12px;
+    box-shadow:
+        0 16px 32px rgba(17, 17, 16, 0.12),
+        0 0 0 1px #000;
+}
+
+.phone-col > .dots {
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.phone-controls {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    margin-top: 12px;
+}
+
+.phone-controls #next-example {
+    justify-self: end;
+}
+
+.step-arrows {
+    display: flex;
+    gap: 8px;
+}
+
+#next-example {
+    transition: opacity 0.35s ease;
+}
+
+#next-example:not(.shown) {
+    opacity: 0;
+    visibility: hidden;
+    transition: none;
+}
+
+.phone-screen {
+    background: #fbfbfa;
+    border-radius: 34px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.phone-status {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 14px 26px 6px;
+    color: var(--ink);
+}
+
+.phone-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px 12px;
+    border-bottom: 1px solid var(--line);
+}
+
+.phone-bar .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.phone-bar .title {
+    font-weight: 650;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.phone-bar .title small {
+    display: block;
+    font-weight: 400;
+    color: var(--ink-3);
+    font-size: 11.5px;
+}
+
+.chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+}
+
+.company-sign-in {
+    position: absolute;
+    inset: 96px 0 0;
+    z-index: 1;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -12px 32px rgba(17, 17, 16, 0.16);
+    animation: sign-in-slide-up 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes sign-in-slide-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .company-sign-in {
+        animation: none;
+    }
+}
+
+.sign-in-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    color: #fff;
+    line-height: 1.3;
+}
+
+.sign-in-logo {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border: 1px solid currentColor;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.sign-in-body {
+    padding: 28px 22px;
+    font-size: 15px;
+}
+
+.sign-in-domain {
+    font-size: 12px;
+    color: var(--ink-3);
+    overflow-wrap: anywhere;
+}
+
+.sign-in-body h3 {
+    font-size: 24px;
+    line-height: 1.2;
+    margin: 24px 0 16px;
+}
+
+.sign-in-access {
+    padding: 14px;
+    border-radius: 8px;
+    background: var(--bg-soft);
+    font-size: 13px;
+    margin: 24px 0;
+}
+
+.sign-in-body .btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.sign-in-body small {
+    display: block;
+    margin-top: 16px;
+    color: var(--ink-3);
+    text-align: center;
+}
+
+.msg {
+    position: relative;
+    max-width: 84%;
+    font-size: 14px;
+    line-height: 1.45;
+    padding: 9px 13px;
+    border-radius: 18px;
+    animation: pop 0.25s ease-out;
+}
+
+.msg.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: #fff;
+    border-bottom-right-radius: 6px;
+}
+
+.msg.agent {
+    align-self: flex-start;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 6px;
+}
+
+.msg.company {
+    align-self: flex-start;
+    background: var(--bg-sunk);
+    border-bottom-left-radius: 6px;
+}
+
+.msg-from {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+}
+
+.msg.has-reaction {
+    margin-top: 12px;
+}
+
+.msg-reaction {
+    position: absolute;
+    top: -14px;
+    right: 8px;
+    padding: 2px 7px;
+    border: 2px solid #fbfbfa;
+    border-radius: 999px;
+    background: var(--bg-sunk);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.3;
+}
+
+.msg.user .msg-reaction {
+    left: 8px;
+    right: auto;
+}
+
+@keyframes pop {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Under the hood */
+
+.hood {
+    display: flex;
+    flex-direction: column;
+    height: 724px;
+    /* Matches the controls under the phone so both columns stop scrolling together. */
+    margin-bottom: 71px;
+    position: sticky;
+    top: 92px;
+    background: #fff;
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.hood-head {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--line);
+}
+
+.hood-head .step-count {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+}
+
+.hood-head h3 {
+    margin: 4px 0 6px;
+    font-size: 21px;
+}
+
+.hood-head p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 15px;
+}
+
+.hood-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.chat > *,
+.hood-body > *,
+.wire > * {
+    flex-shrink: 0;
+}
+
+.lens-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    margin-bottom: 8px;
+}
+
+.lens-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+.console {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-soft);
+    padding: 4px 14px;
+    font-size: 14px;
+}
+
+.console-quote {
+    margin: 10px 0 6px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    color: var(--ink);
+}
+
+.console-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 0;
+}
+
+.console-msg {
+    font-size: 13.5px;
+    line-height: 1.45;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.console-msg span {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-3);
+    margin-bottom: 2px;
+}
+
+.console-msg.agent,
+.console-msg.user {
+    margin-right: 28px;
+}
+
+.console-msg.company {
+    margin-left: 28px;
+    background: var(--bg-sunk);
+}
+
+.console-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    color: var(--ink-3);
+}
+
+.console-row:first-child,
+.console-quote + .console-row {
+    border-top: none;
+}
+
+.console-row b {
+    color: var(--ink);
+    font-weight: 550;
+    text-align: right;
+}
+
+.wire-toggle {
+    align-self: flex-start;
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--accent-2);
+    background: none;
+    border: none;
+    padding: 4px 0;
+    cursor: pointer;
+}
+
+.wire-toggle::before {
+    content: "{ } ";
+    font-family: var(--mono);
+    font-size: 12px;
+}
+
+.wire {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.wire[hidden] {
+    display: none;
+}
+
+.exchange {
+    border: 1px solid #1f232b;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--code-bg);
+}
+
+.exchange-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: #9aa1ad;
+    padding: 8px 14px;
+    border-bottom: 1px solid #1f232b;
+    background: #151820;
+}
+
+.exchange-head .dir {
+    color: #e6e8ec;
+}
+
+.exchange-head .kind {
+    margin-left: auto;
+    color: #7c8594;
+}
+
+.exchange pre {
+    margin: 0;
+    padding: 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--code-ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.exchange pre .k {
+    color: #8ab4ff;
+}
+
+.exchange pre .s {
+    color: #a5d6a7;
+}
+
+.exchange pre .n {
+    color: #f7c97e;
+}
+
+.exchange pre .m {
+    color: #ff9e9e;
+    font-weight: 600;
+}
+
+.exchange pre .h {
+    color: #c3a6ff;
+}
+
+.exchange pre .c {
+    color: #6b7383;
+}
+
+.dots {
+    display: flex;
+    gap: 0;
+    margin: 0 auto;
+}
+
+/* A 24px target around a 9px dot. */
+.dots button {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: none;
+    padding: 7.5px;
+    background-color: #8f8e88;
+    background-clip: content-box;
+    cursor: pointer;
+}
+
+.dots button.on {
+    background-color: var(--ink);
+}
+
+/* CTA band */
+
+footer.site-footer {
+    padding: 40px 0 60px;
+    font-size: 13px;
+    color: var(--ink-3);
+}
+
+footer.site-footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+footer.site-footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ---------- License pages ---------- */
+
+.license-page h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+}
+
+.license-page .section-head p + p {
+    margin-top: 12px;
+}
+
+.license-text {
+    max-width: 760px;
+    margin: 0;
+    padding: 24px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-2);
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+/* ---------- Docs pages ---------- */
+
+.docs-layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 56px;
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 0 28px;
+}
+
+/* The outline is pinned under the header from the start and scrolls on its own. 110px is the
+   header plus the docs tabs. */
+.toc {
+    position: sticky;
+    top: 110px;
+    align-self: start;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    font-size: 13.5px;
+    padding: 48px 8px 32px 0;
+}
+
+.toc .toc-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0 0 10px;
+}
+
+.toc .toc-title:hover {
+    text-decoration: none;
+    color: var(--accent);
+}
+
+/* The menu button that holds the outline on narrow screens. */
+.toc-toggle {
+    display: none;
+}
+
+.toc ol {
+    list-style: none;
+    margin: 0 0 18px;
+    padding: 0;
+}
+
+.toc li a {
+    display: block;
+    color: var(--ink-2);
+    padding: 4px 10px;
+    border-left: 2px solid var(--line);
+}
+
+.toc li a:hover {
+    color: var(--ink);
+    text-decoration: none;
+    border-left-color: var(--ink-3);
+}
+
+.toc li a.active {
+    color: var(--ink);
+    border-left-color: var(--accent);
+    font-weight: 600;
+}
+
+.toc ol.toc-sub {
+    margin: 0;
+}
+
+.toc .toc-sub a {
+    padding-left: 22px;
+    font-size: 13px;
+}
+
+.doc {
+    max-width: 740px;
+    min-width: 0;
+    padding: 48px 0 120px;
+    font-size: 16.5px;
+    line-height: 1.7;
+}
+
+.doc h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    margin: 0 0 12px;
+}
+
+.doc .doc-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.doc .md-copy {
+    flex-shrink: 0;
+    margin-top: 8px;
+}
+
+.doc h2 {
+    font-size: 26px;
+    line-height: 1.25;
+    margin: 64px 0 14px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+}
+
+.doc .doc-head + h2 {
+    margin-top: 32px;
+    padding-top: 0;
+    border-top: none;
+}
+
+.doc h2 .secnum,
+.doc h3 .secnum {
+    color: var(--ink-3);
+    font-weight: 400;
+    margin-right: 3px;
+}
+
+/* A real space, so screen readers say "1 Introduction" rather than "1Introduction". */
+.doc .secnum::after {
+    content: " ";
+}
+
+.doc h3 {
+    font-size: 19px;
+    line-height: 1.3;
+    margin: 40px 0 10px;
+}
+
+.doc h4 {
+    font-size: 15.5px;
+    font-weight: 600;
+    margin: 28px 0 8px;
+}
+
+.doc p,
+.doc li {
+    color: var(--ink);
+}
+
+.doc strong {
+    color: var(--ink);
+}
+
+.doc ul,
+.doc ol {
+    padding-left: 22px;
+}
+
+.doc li {
+    margin-bottom: 6px;
+}
+
+/* Partner names on the roadmap, in columns so long lists stay short. */
+.doc ul.partner-list {
+    columns: 3;
+    column-gap: 24px;
+}
+
+.doc ul.partner-list li {
+    break-inside: avoid;
+}
+
+/* Buttons under a paragraph in the docs. */
+.doc .doc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: -4px 0 20px;
+}
+
+.doc pre {
+    background: var(--bg-soft);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.6;
+    overflow-x: auto;
+}
+
+.doc .code-block {
+    position: relative;
+    margin: 13px 0;
+}
+
+.doc .code-block > pre {
+    margin: 0;
+}
+
+.doc .code-label {
+    margin: 18px 0 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-3);
+}
+
+.doc .code-label + .code-block {
+    margin-top: 0;
+}
+
+.doc code {
+    font-size: 0.86em;
+}
+
+.doc pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.doc pre .k {
+    color: #1f4e8c;
+}
+
+.doc pre .s {
+    color: #2f6b34;
+}
+
+.doc pre .n {
+    color: #9a4a00;
+}
+
+.doc pre .m {
+    color: #a52222;
+    font-weight: 600;
+}
+
+.doc pre .h {
+    color: #5b3a9a;
+}
+
+.doc pre .c {
+    color: #6b6a64;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.code-block:hover .copy-btn,
+.copy-btn:focus-visible {
+    opacity: 1;
+}
+
+/* Touch screens have no hover to reveal it. */
+@media (hover: none) {
+    .copy-btn {
+        opacity: 1;
+    }
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+}
+
+.doc table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 16px 0 24px;
+}
+
+.doc th,
+.doc td {
+    text-align: left;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+.doc th {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    border-bottom-color: var(--ink-3);
+}
+
+.doc td code {
+    white-space: nowrap;
+}
+
+.doc td p,
+.doc td li {
+    color: var(--ink-2);
+}
+
+.pronounce {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    background: none;
+    color: var(--ink-3);
+    vertical-align: -3px;
+    cursor: pointer;
+}
+
+.pronounce:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.spec-table .cell-label {
+    display: none;
+}
+
+.doc .spec-table tr.group-row th {
+    background: none;
+    text-transform: none;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ink);
+    padding-top: 22px;
+}
+
+.doc .spec-table tbody:first-of-type tr.group-row th {
+    padding-top: 14px;
+}
+
+.callout {
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 20px 0;
+    font-size: 15px;
+}
+
+.callout p {
+    margin: 0;
+}
+
+.callout.warn {
+    border-left-color: var(--amber);
+    background: var(--amber-soft);
+}
+
+.req {
+    font-weight: 600;
+    font-size: 0.8em;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+}
+
+.checklist {
+    list-style: none;
+    padding-left: 0 !important;
+}
+
+.checklist li {
+    padding-left: 30px;
+    position: relative;
+}
+
+.checklist li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 5px;
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid var(--ink-3);
+    border-radius: 2px;
+}
+
+.level {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 3px;
+    padding: 1px 7px;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.level.must {
+    background: var(--ink);
+    color: #fff;
+}
+
+.level.should {
+    background: var(--bg-sunk);
+    color: var(--ink-2);
+    border: 1px solid var(--line-2);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1020px) {
+    .site-header .wrap {
+        gap: 12px;
+        padding-inline: 20px;
+    }
+
+    .site-header .doc-status,
+    .site-header > .wrap > .btn {
+        flex-shrink: 0;
+    }
+
+    .site-header > .wrap > .btn {
+        margin-left: auto;
+    }
+
+    .wt-stage {
+        grid-template-columns: 1fr;
+    }
+
+    .hood {
+        position: static;
+        height: auto;
+        margin-bottom: 0;
+    }
+
+    .phone-col {
+        position: static;
+        max-width: 380px;
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .parties,
+    .feature-group {
+        grid-template-columns: 1fr;
+    }
+
+    .parties {
+        gap: 32px;
+    }
+
+    .spectrum {
+        grid-template-columns: 1fr;
+    }
+
+    .spectrum::before {
+        display: none;
+    }
+
+    /* Each stop draws the line down to the next stop's marker. */
+    .spectrum li:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 16px;
+        bottom: -40px;
+        left: 15px;
+        width: 2px;
+        background: var(--line-2);
+    }
+
+    .spectrum .mark {
+        position: relative;
+        z-index: 1;
+        flex: none;
+    }
+
+    .spectrum li {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 16px;
+        text-align: left;
+    }
+
+    .spectrum .stop-text {
+        padding-top: 4px;
+    }
+
+    .feature-group {
+        gap: 16px;
+    }
+
+    /* Block rather than grid, so the outline's menu bar can stick for the whole page. */
+    .docs-layout {
+        display: block;
+    }
+
+    /* The header, docs tabs, and outline bar. */
+    html:has(.docs-layout) {
+        scroll-padding-top: 170px;
+    }
+
+    .doc {
+        padding-top: 0;
+    }
+
+    .doc table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .toc {
+        position: sticky;
+        top: 110px;
+        z-index: 45;
+        max-height: none;
+        overflow: visible;
+        margin: 0 -28px 40px;
+        padding: 0;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+    }
+
+    /* Stands in for the outline bar's gap on pages with no outline. */
+    .toc-spacer {
+        height: 40px;
+    }
+
+    .toc-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 44px;
+        padding: 0 28px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--ink);
+        background: none;
+        border: 0;
+        cursor: pointer;
+        text-align: left;
+    }
+
+    .toc-toggle svg {
+        flex-shrink: 0;
+    }
+
+    .toc-toggle-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .toc-toggle:focus-visible {
+        outline-offset: -2px;
+    }
+
+    .toc nav {
+        display: none;
+    }
+
+    .toc.toc-open nav {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        /* Ends above the comments bar in the corner. */
+        max-height: calc(100vh - 250px);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 16px 28px 4px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        box-shadow: var(--shadow);
+    }
+
+    .nav {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 38px;
+    }
+}
+
+@media (max-width: 860px) {
+    .hero .wrap {
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+}
+
+@media (max-width: 640px) {
+    .wrap {
+        padding: 0 20px;
+    }
+
+    .doc ul.partner-list {
+        columns: 2;
+    }
+
+    .brand-name {
+        font-size: 20px;
+        white-space: normal;
+    }
+
+    /* The hero has its own docs button, and the site name needs the room. */
+    .site-header > .wrap > .btn {
+        display: none;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .hero p.lede {
+        font-size: 17px;
+    }
+
+    section.block {
+        padding: 56px 0 64px;
+    }
+
+    .section-head h2 {
+        font-size: 27px;
+    }
+
+    .feature {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    .docs-layout {
+        padding: 0 20px;
+    }
+
+    .toc {
+        margin: 0 -20px 32px;
+    }
+
+    .toc-spacer {
+        height: 32px;
+    }
+
+    .toc-toggle,
+    .toc.toc-open nav {
+        padding-inline: 20px;
+    }
+
+    /* The site name needs the room. */
+    .site-header .doc-status {
+        display: none;
+    }
+
+    .doc {
+        font-size: 16px;
+        padding-bottom: 96px;
+    }
+
+    .doc h1 {
+        font-size: 30px;
+    }
+
+    .doc h2 {
+        font-size: 23px;
+    }
+
+    .doc .doc-head {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .doc .md-copy {
+        margin: 0 0 8px;
+    }
+
+    .doc table.spec-table,
+    .spec-table tbody,
+    .spec-table tr,
+    .spec-table td {
+        display: block;
+        overflow: visible;
+    }
+
+    .spec-table thead {
+        display: none;
+    }
+
+    .spec-table tr {
+        border-top: 1px solid var(--line);
+        padding: 12px 0;
+    }
+
+    .doc .spec-table td {
+        border-bottom: 0;
+        padding: 0;
+    }
+
+    .doc .spec-table td + td {
+        margin-top: 10px;
+    }
+
+    .spec-table td:first-child {
+        font-weight: 600;
+    }
+
+    .spec-table td + td .cell-label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink-3);
+        margin-bottom: 2px;
+    }
+
+    .spec-table .cell-label code {
+        background: none;
+        padding: 0;
+    }
+
+    .doc .spec-table td code {
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .spec-table tr.group-row,
+    .spec-table tr.group-row th {
+        display: block;
+    }
+
+    .spec-table tr.group-row {
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        margin: 20px 0 8px;
+    }
+
+    .doc .spec-table tr.group-row th {
+        padding: 0;
+        border-bottom: 0;
+    }
+}
+
+/* ---------- Review comments ---------- */
+
+/* Off by default. The switch in the bottom-right corner, or Cmd+. (Ctrl+. off a Mac), turns them
+   on (components/comments.tsx). They float
+   over the page without moving anything: the column sits to the right of the text, and the
+   component sets its left and width. The highlight colors live in the component, since the CSS
+   build doesn't parse ::highlight(). */
+
+.comments-margin {
+    position: absolute;
+    top: 0;
+    z-index: 30;
+}
+
+.cm-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px 12px 12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow:
+        inset 3px 0 0 transparent,
+        0 1px 2px rgba(17, 17, 16, 0.04);
+    font-size: 13.5px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition:
+        transform 180ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease;
+}
+
+/* The open card's left border turns yellow, thickened by an inset shadow so the text doesn't
+   move. Both follow the rounded corners. */
+.cm-card.cm-active {
+    z-index: 1;
+    border-color: var(--line-2);
+    border-left-color: rgb(250, 204, 21);
+    box-shadow:
+        inset 3px 0 0 rgb(250, 204, 21),
+        var(--shadow);
+    cursor: default;
+}
+
+/* Pages without sections, like the home page, have no label, so the card starts with the quote or
+   comment. */
+.cm-card > :first-child {
+    margin-top: 0;
+}
+
+.cm-card.cm-resolved {
+    opacity: 0.6;
+}
+
+.cm-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--ink-3);
+}
+
+.cm-section {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+    color: var(--ink-2);
+}
+
+.cm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 2px;
+    margin: 6px -4px -4px 0;
+}
+
+.cm-actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    color: var(--ink-3);
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.cm-actions button:hover {
+    color: var(--ink);
+    background: var(--bg-sunk);
+}
+
+.cm-body {
+    margin: 2px 0 0;
+    color: var(--ink);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.cm-note {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--amber);
+}
+
+/* The quoted text is right beside the card on wide screens, so it only shows in the bottom panel
+   and for comments whose text is gone. */
+.cm-quote {
+    display: none;
+    margin: 6px 0 0;
+    padding-left: 8px;
+    border-left: 2px solid var(--line-2);
+    font-size: 12.5px;
+    color: var(--ink-3);
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.cm-sheet .cm-quote,
+.cm-outdated .cm-quote {
+    display: -webkit-box;
+}
+
+.cm-outdated .cm-quote {
+    text-decoration: line-through;
+}
+
+.cm-form textarea {
+    display: block;
+    width: 100%;
+    min-height: 68px;
+    margin-top: 6px;
+    padding: 7px 9px;
+    font: inherit;
+    color: var(--ink);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius-sm);
+    resize: vertical;
+}
+
+.cm-form textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.cm-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.cm-buttons button {
+    height: 28px;
+    padding: 0 10px;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.cm-buttons button:hover {
+    border-color: var(--ink-3);
+}
+
+.cm-buttons .cm-primary {
+    color: #fff;
+    background: var(--ink);
+    border-color: var(--ink);
+}
+
+.cm-buttons .cm-primary:hover {
+    background: #2a2a28;
+}
+
+.cm-buttons button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+/* The button that appears when you select text, level with the selection's first line. The
+   component sets its position. */
+.cm-add {
+    position: absolute;
+    z-index: 40;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: #fff;
+    background: var(--ink);
+    border: 0;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    cursor: pointer;
+}
+
+.cm-add:hover {
+    background: #2a2a28;
+}
+
+/* Always on screen. The switch stays in the corner, and turning comments on adds their tools to
+   its left. */
+.cm-bar {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 4px;
+    font-size: 13px;
+    color: var(--ink-2);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+}
+
+.cm-bar[hidden] {
+    display: none;
+}
+
+.cm-bar .btn {
+    border-radius: 999px;
+}
+
+/* Fixed widths, so the count and switch don't change size as the count or state changes. */
+.cm-bar .cm-switch {
+    margin-left: 2px;
+}
+
+.cm-bar .cm-count {
+    gap: 6px;
+    min-width: 50px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Only the chip changes when switching, so the label stays put. */
+.cm-bar .cm-switch {
+    gap: 8px;
+    padding: 0 6px 0 12px;
+    color: var(--ink);
+}
+
+.cm-bar .cm-switch[aria-pressed="true"]:not(:hover) {
+    background: none;
+}
+
+.cm-chip {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #66655f;
+    background: var(--bg-sunk);
+    border-radius: 999px;
+}
+
+/* The same yellow as highlighted text. */
+.cm-switch[aria-pressed="true"] .cm-chip {
+    color: #7a5800;
+    background: rgba(250, 204, 21, 0.32);
+}
+
+/* Both labels sit in the chip, and switching fades one into the other. */
+.cm-chip > span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cm-switch[aria-pressed="true"] .cm-chip-off,
+.cm-switch[aria-pressed="false"] .cm-chip-on {
+    opacity: 0;
+}
+
+/* The tools to the left of the count. Turning comments on slides them out from behind it. */
+/* The component sets the width. The buttons keep their size and are pinned to the right, so
+   they move into view rather than grow. */
+.cm-tools {
+    display: flex;
+    justify-content: flex-end;
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+}
+
+.cm-tools[data-settled] {
+    overflow: visible;
+}
+
+.cm-tools[data-open="true"] {
+    opacity: 1;
+}
+
+.cm-tools-inner {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 2px;
+    padding-right: 2px;
+}
+
+.cm-animate .cm-tools {
+    transition:
+        width 0.25s ease,
+        opacity 0.2s ease;
+}
+
+.cm-animate .cm-chip,
+.cm-animate .cm-chip > span {
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cm-animate .cm-tools,
+    .cm-animate .cm-chip,
+    .cm-animate .cm-chip > span,
+    .cm-card {
+        transition: none;
+    }
+
+    html {
+        scroll-behavior: auto;
+    }
+
+    .msg {
+        animation: none;
+    }
+}
+
+.cm-sep {
+    width: 1px;
+    height: 16px;
+    margin: 0 4px;
+    background: var(--line);
+}
+
+.cm-warn {
+    display: inline-flex;
+    padding: 0 4px;
+    color: var(--amber);
+}
+
+/* Popovers above the toolbar: the list of pages with comments, the confirmation for clearing all
+   comments, the "…" menu, and the note shown the first time comments are on. */
+.cm-pop {
+    position: fixed;
+    right: 20px;
+    bottom: 68px;
+    z-index: 61;
+    min-width: 220px;
+    padding: 6px;
+    font-size: 13px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
+
+.cm-confirm {
+    width: 280px;
+    padding: 12px 14px;
+    line-height: 1.5;
+}
+
+.cm-confirm p {
+    margin: 0 0 4px;
+    color: var(--ink-2);
+}
+
+.cm-confirm .cm-confirm-title {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.cm-confirm .cm-buttons {
+    margin-top: 12px;
+}
+
+.cm-buttons .cm-primary.cm-danger {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+.cm-buttons .cm-primary.cm-danger:hover {
+    background: #a51d1d;
+}
+
+.cm-pages-head {
+    padding: 4px 8px 6px;
+    font-size: 12px;
+    color: var(--ink-3);
+}
+
+.cm-pages a {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 6px 8px;
+    color: var(--ink);
+    border-radius: var(--radius-sm);
+}
+
+.cm-pages a:hover {
+    text-decoration: none;
+    background: var(--bg-soft);
+}
+
+.cm-pages a.cm-current {
+    font-weight: 600;
+}
+
+.cm-pages-count {
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+
+.cm-pages-empty {
+    max-width: 240px;
+    margin: 0;
+    padding: 4px 8px;
+    line-height: 1.5;
+    color: var(--ink-2);
+}
+
+.cm-pages-empty strong {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.cm-pages-foot {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+    min-width: 240px;
+}
+
+.cm-pages-foot button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    text-align: left;
+    background: none;
+    border: 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.cm-pages-foot button:hover {
+    background: var(--bg-soft);
+}
+
+.cm-pages-foot button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.cm-pages-foot button:disabled:hover {
+    background: none;
+}
+
+.cm-pages-foot .cm-check {
+    margin-left: auto;
+}
+
+.cm-pages-foot .cm-danger {
+    color: var(--red);
+}
+
+.cm-pages-foot .cm-danger:hover {
+    background: var(--red-soft);
+}
+
+/* A tooltip long enough to wrap, to the left of the menu, so it doesn't cover the other items. */
+.cm-tip-wide[data-tip]::after {
+    top: 50%;
+    right: calc(100% + 14px);
+    bottom: auto;
+    left: auto;
+    width: max-content;
+    max-width: 240px;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.45;
+    white-space: normal;
+    transform: translateY(-50%);
+}
+
+/* The "…" menu has no list above its first group. */
+.cm-pages-foot.cm-more {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+}
+
+/* The result of the last action in the "…" menu, at its foot. */
+.cm-pop-note {
+    max-width: 240px;
+    margin: 6px 0 0;
+    padding: 8px 8px 2px;
+    line-height: 1.5;
+    color: var(--green);
+    border-top: 1px solid var(--line);
+}
+
+.cm-pop-error {
+    color: var(--red);
+}
+
+/* While a file is dragged over the page, a box above the toolbar to drop it in. */
+.cm-drop {
+    position: fixed;
+    right: 20px;
+    bottom: 68px;
+    z-index: 62;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 240px;
+    height: 120px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--ink-2);
+    text-align: center;
+    background: var(--bg);
+    border: 1.5px dashed var(--line-2);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    transition:
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+.cm-drop > * {
+    pointer-events: none;
+}
+
+.cm-drop-active {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: var(--accent);
+}
+
+/* Narrower screens: the open comment shows in a panel above the toolbar. */
+.comments-margin.cm-sheet {
+    position: fixed;
+    top: auto;
+    right: 20px;
+    bottom: 72px;
+    z-index: 60;
+    width: 340px;
+}
+
+.cm-sheet .cm-card {
+    position: relative;
+}
+
+@media (max-width: 640px) {
+    /* Further in from the corner than on desktop, clear of rounded screen corners and the
+       home bar. */
+    .comments-margin.cm-sheet {
+        left: 16px;
+        right: 16px;
+        bottom: 80px;
+        width: auto;
+    }
+
+    .cm-bar {
+        right: 16px;
+        bottom: 28px;
+    }
+
+    .cm-pop,
+    .cm-drop {
+        right: 16px;
+        bottom: 76px;
+    }
+}
+
+@media print {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        animation: none !important;
+    }
+
+    /* An embedding host can wrap the page in a full-height scroll container, which prints as one page. */
+    html,
+    body,
+    body > * {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    .phone-col,
+    .hood {
+        position: static;
+    }
+
+    .site-header,
+    .phone-controls,
+    .phone-col > .dots,
+    .wire-toggle {
+        display: none;
+    }
+
+    .hood,
+    .hood-body,
+    .chat,
+    .phone-screen {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .hood {
+        margin-bottom: 0;
+    }
+
+    .wt-stage,
+    .feature,
+    .party li,
+    .exchange,
+    pre {
+        break-inside: avoid;
+    }
+
+    .docs-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .toc,
+    .comments-margin,
+    .cm-add,
+    .cm-bar {
+        display: none;
+    }
+}
