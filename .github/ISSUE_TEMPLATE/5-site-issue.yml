@@ -1,0 +1,17 @@
+name: Site issue
+description: A broken link, typo, layout problem, or other issue with the website itself.
+labels: ["site"]
+body:
+    - type: input
+      id: url
+      attributes:
+          label: Page URL
+      validations:
+          required: true
+    - type: textarea
+      id: description
+      attributes:
+          label: What's wrong
+          description: What you expected and what happened. Include your browser and device for layout problems.
+      validations:
+          required: true

@@ -1,6 +1,7 @@
 export const SITE_URL = "https://personalagentprotocol.org";
 export const SITE_NAME = "Personal Agent Protocol";
-export const FEEDBACK_EMAIL = "feedback-personal-agent-protocol@sierra.ai";
+export const REPO_URL = "https://github.com/personal-agent-protocol/personal-agent-protocol";
+export const NEW_ISSUE_URL = `${REPO_URL}/issues/new`;
 
 // The link preview image for every page.
 const PREVIEW_IMAGE = {

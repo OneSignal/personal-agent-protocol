@@ -1,0 +1,53 @@
+name: Spec feedback
+description: A gap, ambiguity, contradiction, risk, or question about the specification or docs.
+labels: ["feedback"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              One point per issue makes it easier to discuss and track. For a longer review with many points, use the **Review or comments** template instead.
+    - type: dropdown
+      id: page
+      attributes:
+          label: Page
+          options:
+              - Introduction
+              - Specification
+              - Extensions
+              - Operations extension
+              - Guides
+              - Path to 1.0
+              - Several pages
+      validations:
+          required: true
+    - type: input
+      id: section
+      attributes:
+          label: Section
+          description: The section number or link, for example `4.3` or `https://personalagentprotocol.org/docs/spec#sending-tokens`.
+    - type: dropdown
+      id: kind
+      attributes:
+          label: Kind
+          options:
+              - Gap
+              - Ambiguous
+              - Contradiction
+              - Risk (privacy or security)
+              - Simplification
+              - Wording
+              - Question
+      validations:
+          required: true
+    - type: textarea
+      id: description
+      attributes:
+          label: What's wrong, and why it matters
+          description: Quote the docs only when it makes the point clearer, and keep quotes short.
+      validations:
+          required: true
+    - type: textarea
+      id: suggestion
+      attributes:
+          label: Suggested change
+          description: Optional. Proposed wording or behavior, if you have one.

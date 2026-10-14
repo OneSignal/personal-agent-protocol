@@ -5,7 +5,7 @@ import * as runtime from "react/jsx-runtime";
 import remarkGfm from "remark-gfm";
 import { docsPage, pageSource, tabOutline } from "../lib/docs-content";
 import { escapeHeadingIds, rehypeDocs, remarkHeadingIds } from "../lib/mdx";
-import { FEEDBACK_EMAIL } from "../lib/site";
+import { NEW_ISSUE_URL } from "../lib/site";
 import { CodeBlock } from "./code-block";
 import { CopyMarkdownButton } from "./copy-markdown-button";
 import { DocsNav } from "./docs-nav";
@@ -24,11 +24,11 @@ function PartnerList({ children }: { children?: ReactNode }) {
     );
 }
 
-// A link to the feedback email address. `cta` names the link in analytics.
-function FeedbackEmail({ cta }: { cta: string }) {
+// A link to open a GitHub issue on the protocol's repository. `cta` names the link in analytics.
+function IssueLink({ cta, children }: { cta: string; children?: ReactNode }) {
     return (
-        <a href={`mailto:${FEEDBACK_EMAIL}`} data-cta={cta}>
-            {FEEDBACK_EMAIL}
+        <a href={NEW_ISSUE_URL} target="_blank" rel="noopener noreferrer" data-cta={cta}>
+            {children}
         </a>
     );
 }
@@ -39,7 +39,7 @@ const COMPONENTS: MDXComponents = {
     CodeBlock,
     CommentingButton,
     DownloadKitButton,
-    FeedbackEmail,
+    IssueLink,
     PartnerList,
     PronounceButton,
 };

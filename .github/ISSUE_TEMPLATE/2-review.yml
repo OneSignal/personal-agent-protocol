@@ -1,0 +1,20 @@
+name: Review or comments
+description: Share a review written with the agent kit, or comments exported from the site.
+labels: ["feedback", "review"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Paste a `review.md` from the [agent kit](https://personalagentprotocol.org/docs/path-to-1#feedback), or comments you left on the site and exported from the … menu next to Comments. To attach a comment file instead, drag it into the box below.
+    - type: input
+      id: docs-date
+      attributes:
+          label: Docs version
+          description: The date of the docs you reviewed. The agent kit's `review.md` heading includes it.
+    - type: textarea
+      id: review
+      attributes:
+          label: Review
+          render: markdown
+      validations:
+          required: true

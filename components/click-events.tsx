@@ -6,14 +6,7 @@ import { PAGE_HREFS } from "../lib/docs-outline";
 
 const SPEC = "/docs/spec";
 // The values a link's `data-cta` attribute may hold, and the places a call to action may sit.
-const CTAS = new Set([
-    "see_examples",
-    "docs",
-    "spec",
-    "roadmap",
-    "feedback_email",
-    "partner_email",
-]);
+const CTAS = new Set(["see_examples", "docs", "spec", "roadmap", "feedback_issue", "github"]);
 const CTA_LOCATIONS = new Set(["hero", "implement"]);
 
 // Sends `cta_click` when a visitor clicks a link marked with `data-cta`, and `spec_section_click`

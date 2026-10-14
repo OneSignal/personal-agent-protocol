@@ -1,0 +1,43 @@
+name: Implementation report
+description: Tell us what you ran into while implementing the draft, as a personal agent or a company.
+labels: ["implementation"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              The draft changes based on what implementers learn. Reports are useful at any stage, including if you stopped partway.
+    - type: dropdown
+      id: role
+      attributes:
+          label: You implemented it as
+          options:
+              - A personal agent
+              - A company
+              - Both
+              - A library or tool for others
+      validations:
+          required: true
+    - type: textarea
+      id: scope
+      attributes:
+          label: What you implemented
+          description: Which parts, for example discovery, direct sign-in, conversations, or the operations extension.
+      validations:
+          required: true
+    - type: textarea
+      id: problems
+      attributes:
+          label: What didn't work or was hard
+          description: Unclear rules, missing pieces, or things that didn't work as written. Link spec sections where you can.
+      validations:
+          required: true
+    - type: textarea
+      id: worked
+      attributes:
+          label: What worked well
+          description: Optional. Parts worth keeping as they are.
+    - type: input
+      id: link
+      attributes:
+          label: Code or demo
+          description: Optional. A link, if it's public.

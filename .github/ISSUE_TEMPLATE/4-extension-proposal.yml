@@ -1,0 +1,36 @@
+name: Extension or new topic
+description: Propose something many implementations need that the draft doesn't cover, such as payments.
+labels: ["proposal"]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              Check the [open topics](https://personalagentprotocol.org/docs/path-to-1#open-topics) and existing issues first. If one already covers your idea, add to it there.
+    - type: textarea
+      id: problem
+      attributes:
+          label: Problem
+          description: What a personal agent or company can't do today, with a concrete example.
+      validations:
+          required: true
+    - type: dropdown
+      id: who
+      attributes:
+          label: Who needs it
+          multiple: true
+          options:
+              - Personal agents
+              - Companies
+              - Users
+      validations:
+          required: true
+    - type: textarea
+      id: proposal
+      attributes:
+          label: Proposed approach
+          description: Optional. How it could work, and whether it fits as an extension or belongs in the core spec.
+    - type: textarea
+      id: prior-art
+      attributes:
+          label: Prior art
+          description: Optional. Existing protocols or products that solve this, and how this would work with them.

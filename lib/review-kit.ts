@@ -1,7 +1,7 @@
 import { DOCS_PAGES } from "../content/docs";
 import { docsOutline, pageMarkdown } from "./docs-content";
 import { allSections, markdownFileName } from "./docs-outline";
-import { FEEDBACK_EMAIL, SITE_NAME, SITE_URL } from "./site";
+import { NEW_ISSUE_URL, SITE_NAME, SITE_URL } from "./site";
 
 // The review kit: the docs as Markdown, with an AGENTS.md that asks an AI agent for a review
 // organized by section. Built at build time from the same content as the pages. The docs zip holds
@@ -48,8 +48,8 @@ review, so write it for them.
    Respond to them where you have something to add, and don't repeat them.
 3. Write your review as one Markdown file, in the format below. Save it as \`review.md\` in this
    folder, or reply with it if you can't save files.
-4. Tell the person you're working with to send the review to ${FEEDBACK_EMAIL}, either
-   by attaching \`review.md\` or by pasting it into the email.
+4. Tell the person you're working with to share the review by opening a GitHub issue at
+   ${NEW_ISSUE_URL}?template=2-review.yml and pasting in \`review.md\`.
 
 Don't edit the docs. Comment on them.
 

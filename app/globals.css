@@ -201,6 +201,13 @@ code {
     font-weight: 600;
 }
 
+/* Centered on the site name's mostly lowercase text, which sits a little below its line box's
+   middle. */
+.brand .draft-badge {
+    position: relative;
+    top: 1px;
+}
+
 .nav {
     display: flex;
     gap: 22px;
@@ -217,7 +224,8 @@ code {
     text-decoration: none;
 }
 
-.header-end {
+.site-header .github-link {
+    flex-shrink: 0;
     margin-left: auto;
 }
 
@@ -1268,6 +1276,12 @@ footer.site-footer a {
     text-underline-offset: 2px;
 }
 
+footer.site-footer .footer-github {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
 /* ---------- License pages ---------- */
 
 .license-page h1 {
@@ -1721,7 +1735,7 @@ footer.site-footer a {
         flex-shrink: 0;
     }
 
-    .site-header > .wrap > .btn {
+    .site-header > .wrap > .btn:not(.github-link) {
         margin-left: auto;
     }
 
@@ -1908,7 +1922,8 @@ footer.site-footer a {
         white-space: normal;
     }
 
-    /* The hero has its own docs button, and the site name needs the room. */
+    /* The site name needs the room. The hero has its own docs button, and the footer links to
+       GitHub. */
     .site-header > .wrap > .btn {
         display: none;
     }

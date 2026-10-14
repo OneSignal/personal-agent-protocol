@@ -2,7 +2,7 @@ import type { Nodes, PhrasingContent, Root, RootContent } from "mdast";
 import remarkGfm from "remark-gfm";
 import remarkStringify from "remark-stringify";
 import { unified } from "unified";
-import { FEEDBACK_EMAIL, SITE_URL } from "./site";
+import { NEW_ISSUE_URL, SITE_URL } from "./site";
 
 // Writes a docs page's MDX as plain Markdown, such as /docs/spec.md: components become Markdown
 // or are dropped, heading ids are dropped, and each paragraph is one line.
@@ -29,12 +29,12 @@ function lower(node: RootContent): RootContent[] {
         if (jsx.name && DROP.has(jsx.name)) {
             return [];
         }
-        if (jsx.name === "FeedbackEmail") {
+        if (jsx.name === "IssueLink") {
             return [
                 {
                     type: "link",
-                    url: `mailto:${FEEDBACK_EMAIL}`,
-                    children: [{ type: "text", value: FEEDBACK_EMAIL }],
+                    url: NEW_ISSUE_URL,
+                    children: phrasing(jsx.children.flatMap(lower)) as PhrasingContent[],
                 },
             ];
         }

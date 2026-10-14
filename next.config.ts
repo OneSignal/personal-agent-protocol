@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import type { NextConfig } from "next";
 
-// The last time the docs content changed, for the header's "Updated" date. Falls back to the latest
+// The last time the docs content changed, for the date in the agent kit. Falls back to the latest
 // commit when the clone is too shallow to see the content's history, and to the build time when
 // git isn't available.
 function docsUpdated(): Date {
@@ -18,20 +18,12 @@ function docsUpdated(): Date {
     return new Date();
 }
 
-const updated = docsUpdated();
-
 const config: NextConfig = {
     output: "export",
     devIndicators: false,
     allowedDevOrigins: ["*.pinecone.cloud", "localhost", "127.0.0.1"],
     env: {
-        NEXT_PUBLIC_DOCS_UPDATED: updated.toISOString(),
-        NEXT_PUBLIC_DOCS_UPDATED_LABEL: updated.toLocaleDateString("en-US", {
-            timeZone: "America/Los_Angeles",
-            month: "short",
-            day: "numeric",
-            year: "numeric",
-        }),
+        NEXT_PUBLIC_DOCS_UPDATED: docsUpdated().toISOString(),
     },
 };
 
