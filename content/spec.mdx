@@ -1311,7 +1311,8 @@ data: {"id":"evt_c2","type":"message","created_at":"2026-10-08T19:03:00Z","messa
 
 Changes to `status` and `responder` arrive as `state` events. The Company MAY close a stream at any
 time, for example when the Session Token expires. The Personal Agent reconnects with `Last-Event-ID`
-set to the last event it handled, in place of `cursor`.
+set to the last event it handled, in place of `cursor`. If a request has both, `Last-Event-ID` wins,
+because SSE clients add it to the URL the stream was first opened with.
 
 While the Company Agent writes a message, the Company MAY send pieces of its text as `text-delta`
 events, with no SSE `id`:
