@@ -514,7 +514,9 @@ its `poppy.json` (section 3), and accepts a token at such a service only if it w
 **Rate limits.** A Company that limits how often a Personal Agent can make requests returns HTTP 429
 with a `Retry-After` header when a request goes over the limit, on any of its endpoints, APIs,
 conversations, or website. The Personal Agent MUST wait at least that long before sending the
-request again.
+request again. At the token endpoint and at endpoints this protocol or an extension defines, such as
+conversations and Mediated Sign-In, the body is `{"error": "rate_limited"}`. APIs and the website
+keep their own response bodies.
 
 ### 4.4 Signing in {#sign-in}
 
@@ -1519,6 +1521,7 @@ OAuth error responses:
 | `message_id_conflict`      | 409    | A message reused an ID that the Company accepted with different content (7.3).                                              |
 | `invalid_cursor`           | 400    | The cursor is unknown or doesn't belong to this conversation.                                                               |
 | `cursor_expired`           | 410    | The Company no longer has the events at this cursor (7.5).                                                                  |
+| `rate_limited`             | 429    | Too many requests. Retry after the time in the `Retry-After` header (4.3).                                                  |
 
 ## 8. References {#references}
 
