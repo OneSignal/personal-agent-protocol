@@ -60,10 +60,11 @@ when they appear in capitals, as shown here.
 A Company MUST publish its `poppy.json` document at `https://{domain}/.well-known/poppy.json` over
 HTTPS, where `{domain}` is the Company's domain or a subdomain it controls.
 
-The well-known URL MAY redirect to where the document is hosted, so a Company can host it somewhere
-else, such as with a provider. The document still speaks for the domain the Personal Agent requested
-(see `organization` below). Personal Agents MUST follow redirects, and every redirect MUST be to an
-HTTPS URL. Personal Agents SHOULD cache the document according to its HTTP caching headers.
+The well-known URL MAY redirect, for example from `example.com` to `www.example.com`. Personal Agents
+MUST follow redirects, and every redirect MUST be to an HTTPS URL. The document speaks for the host
+that serves it after any redirects (see `organization` below), so a Company that uses a provider has
+the provider serve it on the Company's own domain. Personal Agents SHOULD cache the document
+according to its HTTP caching headers.
 
 An example document:
 
@@ -125,7 +126,7 @@ An example document:
 | Field                | Req.                                                             | Description                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | -------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `protocol_version`   | Yes                                                              | The protocol version the document follows, as `major.minor`. This draft is `0.1`. A newer minor version doesn't break older Personal Agents, which use the document and ignore fields they don't recognize. A Personal Agent MUST NOT use a document whose major version it doesn't support.                                                                                                                                                |
-| `organization`       | Yes                                                              | Display name and domain. `domain` MUST match the host of the well-known URL the Personal Agent requested, ignoring a leading `www.`. After a redirect, the host the document is served from does not count.                                                                                                                                                                                                                                 |
+| `organization`       | Yes                                                              | Display name and domain. `domain` MUST be the host that serves the document, after any redirects. Domains are compared ignoring case, and nothing else.                                                                                                                                                                                                                                                                                     |
 | `auth`               | If `agent`, `apis`, or `web.browser_session_endpoint` is present | `issuer` is the Company's OAuth issuer identifier, an HTTPS URL. It identifies the Company, and the Personal Agent finds the Company's OAuth endpoints from it (3.2). It also contains `direct`, `device`, and `mediated` for the types of sign-in the Company supports (4.4), if any. With none, it offers only signed-out Sessions. Sessions need `auth`, so a Company without it can only be browsed as an ordinary website (section 5). |
 | `auth.direct`        | If supported                                                     | `scopes` lists the scopes Direct Sign-In can grant (4.5).                                                                                                                                                                                                                                                                                                                                                                                   |
 | `auth.device`        | If supported                                                     | `scopes` lists the scopes Device Sign-In can grant (4.6).                                                                                                                                                                                                                                                                                                                                                                                   |
@@ -146,8 +147,8 @@ The issuer MUST publish OAuth Authorization Server Metadata ([RFC
 8414](https://www.rfc-editor.org/rfc/rfc8414)), and `poppy_domains` in it MUST list every domain
 whose `poppy.json` names the issuer. Before using a Company's `poppy.json`, the Personal Agent
 fetches the metadata and MUST check that its `issuer` exactly matches `auth.issuer` and that
-`poppy_domains` includes `organization.domain`. Otherwise any domain could claim another Company's
-issuer and receive its tokens.
+`poppy_domains` includes `organization.domain`, ignoring case. Otherwise any domain could claim
+another Company's issuer and receive its tokens.
 
 ```json label="GET https://auth.example.com/.well-known/oauth-authorization-server"
 {
