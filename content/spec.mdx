@@ -1425,7 +1425,9 @@ Content-Type: application/json
 The Company returns HTTP 202 with `status` and `responder`, and the status becomes `queued` while it
 finds someone. When a person joins, `responder` becomes `human`. If no one is available, the status
 goes back to `idle` with `responder` still `agent`, and the Company Agent says why in a message. The
-Company Agent can also hand off to a person on its own.
+Company Agent can also hand off to a person on its own. If the conversation is already `queued`, or
+a person is already handling it, the Company returns HTTP 202 with the current `status` and
+`responder` and changes nothing.
 
 The Personal Agent can keep sending messages while it waits, for example to explain the problem for
 the person who joins or to update `user_available`. Closing the conversation cancels a pending
@@ -1519,8 +1521,9 @@ isn't signed in to that account, for example after signing out (4.9), gets `sign
 
 The Personal Agent closes a conversation it's done with by sending an empty JSON object to its
 `close` URL. The Company adds a `state` event with `status: "closed"`, cancels any pending handoff,
-and returns HTTP 200 with `status` and `responder`. The Company can also close a conversation, for
-example after a period of inactivity.
+and returns HTTP 200 with `status` and `responder`. Closing a conversation that is already closed
+returns the same response and adds no event. The Company can also close a conversation, for example
+after a period of inactivity.
 
 A closed conversation takes no more messages, and its events stay readable for as long as the
 Company keeps them. Closing a conversation doesn't cancel anything it started, such as an order or a
