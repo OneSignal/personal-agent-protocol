@@ -809,6 +809,16 @@ it.
 | `failed`        | Sign-in didn't succeed, for example a wrong password or too many wrong codes.                       |
 | `expired`       | The sign-in took longer than `expires_at`. Start again.                                             |
 
+Every status comes with HTTP 200. Once a sign-in is `failed` or `expired`, submitting a code to it
+returns the same status again. Problems with the request itself are errors with a JSON body, as at
+the token endpoint:
+
+| Error               | Status | Meaning                                                                                        |
+| ------------------- | ------ | ---------------------------------------------------------------------------------------------- |
+| `invalid_scope`     | 400    | The scopes are missing, unknown, or not available for Mediated Sign-In (4.4).                  |
+| `account_mismatch`  | 400    | The Session is signed in to a different account than the credentials are for (4.4).            |
+| `sign_in_not_found` | 404    | The `sign_in_id` is unknown or was started by a different Session. Both return the same error. |
+
 Accepting credentials from a Personal Agent puts more responsibility on the Company than Direct
 Sign-In does. A Company that offers Mediated Sign-In MUST rate-limit attempts, MUST NOT return
 credentials in any response, and SHOULD require a one-time code when a sign-in looks unusual.
