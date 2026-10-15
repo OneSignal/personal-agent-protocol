@@ -1162,13 +1162,14 @@ POST https://api.example.com/poppy/conversations/cnv_8f3Kd2/messages?cursor=evt_
 
 ### 7.4 Message fields {#message-fields}
 
-| Field     | Req. | Description                                                                                                                                      |
-| --------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`      | Yes  | The message's ID, chosen by the Personal Agent and unique for the User (7.3).                                                                    |
-| `sender`  | Yes  | `agent` if the Personal Agent wrote the message, `human` if the User wrote it (7.8).                                                             |
-| `text`    | No   | The message in natural language.                                                                                                                 |
-| `data`    | No   | A JSON object for structured details that would need markup, like a list or a table, to fit in a sentence. The protocol doesn't define its keys. |
-| `context` | No   | Facts about the User's situation, such as `locale`, `time_zone`, and `user_available` (below).                                                   |
+| Field     | Req. | Description                                                                                                                                                                                     |
+| --------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`      | Yes  | The message's ID, chosen by the Personal Agent and unique for the User (7.3).                                                                                                                   |
+| `role`    | No   | `user` or `company`, the side the message came from. The Company sets it when it records the message as an event (7.5). The Personal Agent doesn't send it, and the Company ignores it if sent. |
+| `sender`  | Yes  | `agent` if the Personal Agent wrote the message, `human` if the User wrote it (7.8).                                                                                                            |
+| `text`    | No   | The message in natural language.                                                                                                                                                                |
+| `data`    | No   | A JSON object for structured details that would need markup, like a list or a table, to fit in a sentence. The protocol doesn't define its keys.                                                |
+| `context` | No   | Facts about the User's situation, such as `locale`, `time_zone`, and `user_available` (below).                                                                                                  |
 
 A message MUST have at least one of `text`, `data`, or `context`.
 
@@ -1226,9 +1227,9 @@ only `context` updates it without saying anything else, for example when the Use
 }
 ```
 
-Company messages have `id`, `sender`, `text`, and `data`, with an ID the Company chooses. Only the
-Personal Agent sends `context`. Extensions can add fields, such as `operation` in the [Operations
-extension](/docs/extensions/operations#binding-conversations).
+Company messages have `id`, `role`, `sender`, `text`, and `data`, with an ID the Company chooses.
+Only the Personal Agent sends `context`. Extensions can add fields, such as `operation` in the
+[Operations extension](/docs/extensions/operations#binding-conversations).
 
 ### 7.5 Reading events {#reading-events}
 
@@ -1268,13 +1269,13 @@ DPoP: eyJ0eXAiOiJkcG9wK2p3dCIs…
 Every event has an `id`, a `type`, and a `created_at` time ([RFC
 3339](https://www.rfc-editor.org/rfc/rfc3339)). The type says which other fields it has:
 
-| Type                             | Fields                                                                                                                  |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `message`                        | `message`: a message from either side, with `role` set by the Company to `user` or `company` for the side it came from. |
-| `state`                          | `status` and `responder`, after either one changes. See 7.7 for their values.                                           |
-| `authorization`                  | `error`, and `scope` when needed: the Company needs sign-in or more scopes (7.11).                                      |
-| `user_requested`                 | `reason`: the Company asks to talk with the User directly (7.10).                                                       |
-| `direct_opened`, `direct_closed` | `conversation_id`: a Direct Conversation linked to this one opened or closed (7.10).                                    |
+| Type                             | Fields                                                                                                                                                                                                                    |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `message`                        | `message`: a message from either side, as it was sent, with `role` set by the Company to `user` or `company` for the side it came from. Every message the Company accepts is recorded, including one with only `context`. |
+| `state`                          | `status` and `responder`, after either one changes. See 7.7 for their values.                                                                                                                                             |
+| `authorization`                  | `error`, and `scope` when needed: the Company needs sign-in or more scopes (7.11).                                                                                                                                        |
+| `user_requested`                 | `reason`: the Company asks to talk with the User directly (7.10).                                                                                                                                                         |
+| `direct_opened`, `direct_closed` | `conversation_id`: a Direct Conversation linked to this one opened or closed (7.10).                                                                                                                                      |
 
 Personal Agents MUST skip event types they don't recognize, so later versions and extensions can add
 types.

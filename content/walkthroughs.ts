@@ -220,7 +220,8 @@ Content-Type: application/json
         "id": "msg_Jk4tR8wQ2nVb6YpL",
         "role": "user",
         "sender": "agent",
-        "text": "The user's jacket keeps the rain out but isn't warm enough. They'd like to return it."
+        "text": "The user's jacket keeps the rain out but isn't warm enough. They'd like to return it.",
+        "context": { "locale": "en-US", "time_zone": "America/Los_Angeles", "user_available": true }
       }
     },
     {
@@ -783,7 +784,8 @@ Content-Type: application/json
         "role": "user",
         "sender": "agent",
         "text": "The user's connection keeps dropping, 14 times today, and they have a call at 2. Please fix it from your end.",
-        "data": { "modem_id": "mdm_92K", "dropouts_today": 14 }
+        "data": { "modem_id": "mdm_92K", "dropouts_today": 14 },
+        "context": { "time_zone": "America/Chicago", "user_available": true }
       }
     },
     {
@@ -1132,7 +1134,8 @@ Content-Type: application/json
         "id": "msg_Gt7rE1xM6kQa9WnD",
         "role": "user",
         "sender": "agent",
-        "text": "The guest's flight moved to tomorrow morning. Could you move their stay by a day and waive tonight's charge?"
+        "text": "The guest's flight moved to tomorrow morning. Could you move their stay by a day and waive tonight's charge?",
+        "data": { "flight": "PA 518", "reason": "crew", "new_start": "2026-10-14" }
       }
     },
     {
