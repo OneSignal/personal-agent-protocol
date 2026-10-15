@@ -1012,7 +1012,9 @@ MUST accept only tokens issued for its `url` (4.3). MCP clients find where to ge
 server's protected resource metadata ([RFC 9728](https://www.rfc-editor.org/rfc/rfc9728)), and its
 `authorization_servers` MUST include `auth.issuer`. An MCP client that doesn't implement this
 protocol can then sign in with MCP's own authorization flow, and the Company treats that sign-in as
-starting a new signed-in Session.
+starting a new signed-in Session. Such a Session has no User ID, so the User ID rules (4.2) don't
+apply: it belongs to the MCP client and the signed-in account. It can't continue signed out, so it
+ends when the sign-in is revoked or expires.
 
 The Personal Agent calls a Company API the way that API's type describes, with the token in the
 `Authorization` header:
