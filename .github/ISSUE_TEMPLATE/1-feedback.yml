@@ -1,11 +1,11 @@
 name: Spec feedback
-description: A gap, ambiguity, contradiction, risk, or question about the specification or docs.
+description: A point about the specification or docs, or a longer review from the agent kit or the site's comments.
 labels: ["feedback"]
 body:
     - type: markdown
       attributes:
           value: |
-              One point per issue makes it easier to discuss and track. For a longer review with many points, use the **Review or comments** template instead.
+              For a single point, fill in the page and kind. For a longer review, paste a `review.md` from the [agent kit](https://personalagentprotocol.org/docs/path-to-1#feedback), or comments exported from the … menu next to Comments, and choose **Review (several points)**.
     - type: dropdown
       id: page
       attributes:
@@ -24,7 +24,7 @@ body:
       id: section
       attributes:
           label: Section
-          description: The section number or link, for example `4.3` or `https://personalagentprotocol.org/docs/spec#sending-tokens`.
+          description: Optional. The section number or link, for example `4.3` or `https://personalagentprotocol.org/docs/spec#sending-tokens`.
     - type: dropdown
       id: kind
       attributes:
@@ -37,17 +37,13 @@ body:
               - Simplification
               - Wording
               - Question
+              - Review (several points)
       validations:
           required: true
     - type: textarea
       id: description
       attributes:
-          label: What's wrong, and why it matters
-          description: Quote the docs only when it makes the point clearer, and keep quotes short.
+          label: Feedback
+          description: What's wrong and why it matters, with a suggested change if you have one. Quote the docs only when it makes the point clearer.
       validations:
           required: true
-    - type: textarea
-      id: suggestion
-      attributes:
-          label: Suggested change
-          description: Optional. Proposed wording or behavior, if you have one.

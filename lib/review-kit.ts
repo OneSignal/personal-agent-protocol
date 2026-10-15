@@ -49,7 +49,7 @@ review, so write it for them.
 3. Write your review as one Markdown file, in the format below. Save it as \`review.md\` in this
    folder, or reply with it if you can't save files.
 4. Tell the person you're working with to share the review by opening a GitHub issue at
-   ${NEW_ISSUE_URL}?template=2-review.yml and pasting in \`review.md\`.
+   ${NEW_ISSUE_URL}?template=1-feedback.yml and pasting in \`review.md\`.
 
 Don't edit the docs. Comment on them.
 

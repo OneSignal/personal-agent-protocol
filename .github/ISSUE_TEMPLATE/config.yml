@@ -1,8 +1,1 @@
 blank_issues_enabled: true
-contact_links:
-    - name: Read the docs
-      url: https://personalagentprotocol.org/docs/introduction
-      about: The introduction, specification, extensions, and guides.
-    - name: Path to 1.0
-      url: https://personalagentprotocol.org/docs/path-to-1
-      about: How the draft gets to 1.0, and what feedback is most useful.
