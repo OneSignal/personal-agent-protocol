@@ -1151,10 +1151,10 @@ is different, the Company returns `message_id_conflict`. The Company keeps this 
 it keeps the conversation.
 
 **Replies in the response.** To get the Company's reply in the same request, the Personal Agent adds
-`wait` to either `POST`, and `cursor` if it has one. The Company accepts the message, then responds
-as a read of the conversation's events from that cursor would (7.5), holding the request for up to
-`wait` seconds. Without a cursor, it reads from the start of the conversation. The status code stays
-201 or 202:
+the `wait` query parameter to either `POST`, and `cursor` if it has one. The Company accepts the
+message, then responds as a read of the conversation's events from that cursor would (7.5), holding
+the request for up to `wait` seconds. Without a cursor, it reads from the start of the conversation.
+The status code stays 201 or 202:
 
 ```http label="Request: Personal Agent → Company"
 POST https://api.example.com/poppy/conversations/cnv_8f3Kd2/messages?cursor=evt_c2&wait=10
@@ -1280,11 +1280,13 @@ Every event has an `id`, a `type`, and a `created_at` time ([RFC
 Personal Agents MUST skip event types they don't recognize, so later versions and extensions can add
 types.
 
+- `cursor` and `wait` are query parameters, here and on the `POST` requests in 7.3.
 - Each event's `id` is also a cursor. Without a `cursor`, the read starts at the beginning of the
   conversation. Cursors are opaque, so the Personal Agent MUST NOT compare or sort them.
-- The Company holds the request for up to `wait` seconds until there is an event to return. It MAY
-  return sooner, or cap `wait`. Without `wait`, it returns right away. A read that times out returns
-  an empty `events` list.
+- `wait` is a whole number of seconds, 0 or more. The Company holds the request for up to `wait`
+  seconds until there is an event to return. It MAY return sooner, or cap `wait`: a larger `wait` is
+  held only as long as the cap, not rejected. Without `wait`, it returns right away. A read that
+  times out returns an empty `events` list.
 - Every successful read MUST include `cursor`, `has_more`, `status`, and `responder`, even with no
   events. `cursor` is the last event returned, or the request's cursor if there were none. When
   `has_more` is `true`, the Personal Agent reads again right away.
@@ -1528,15 +1530,16 @@ return.
 Token errors are the ones in section 6. Other errors have a JSON body with an `error` code, like
 OAuth error responses:
 
-| Error                      | Status | Meaning                                                                                                                     |
-| -------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------- |
-| `conversation_not_found`   | 404    | The Conversation ID is unknown or belongs to a different Personal Agent, User, or account (7.2). All return the same error. |
-| `conversation_closed`      | 409    | A message or handoff was sent to a closed conversation.                                                                     |
-| `direct_conversation_open` | 409    | The conversation has an open Direct Conversation, named in `conversation_id` (7.10).                                        |
-| `message_id_conflict`      | 409    | A message reused an ID that the Company accepted with different content (7.3).                                              |
-| `invalid_cursor`           | 400    | The cursor is unknown or doesn't belong to this conversation.                                                               |
-| `cursor_expired`           | 410    | The Company no longer has the events at this cursor (7.5).                                                                  |
-| `rate_limited`             | 429    | Too many requests. Retry after the time in the `Retry-After` header (4.3).                                                  |
+| Error                      | Status | Meaning                                                                                                                                                                           |
+| -------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `conversation_not_found`   | 404    | The Conversation ID is unknown or belongs to a different Personal Agent, User, or account (7.2). All return the same error.                                                       |
+| `conversation_closed`      | 409    | A message or handoff was sent to a closed conversation.                                                                                                                           |
+| `direct_conversation_open` | 409    | The conversation has an open Direct Conversation, named in `conversation_id` (7.10).                                                                                              |
+| `message_id_conflict`      | 409    | A message reused an ID that the Company accepted with different content (7.3).                                                                                                    |
+| `invalid_cursor`           | 400    | The cursor is unknown or doesn't belong to this conversation.                                                                                                                     |
+| `cursor_expired`           | 410    | The Company no longer has the events at this cursor (7.5).                                                                                                                        |
+| `invalid_request`          | 400    | The request is malformed, such as a message with none of `text`, `data`, or `context`, an ID with characters not allowed (7.2), or a `wait` that isn't a whole number of seconds. |
+| `rate_limited`             | 429    | Too many requests. Retry after the time in the `Retry-After` header (4.3).                                                                                                        |
 
 ## 8. References {#references}
 
