@@ -200,7 +200,14 @@ Extensions add optional features on top of this protocol, such as
 - Personal Agents and Companies MUST ignore extensions they don't support and fields they don't
   recognize, so either side can work with the other under this specification alone.
 - A Company MAY refuse a request it handles only with an extension the Personal Agent doesn't list.
-  It returns `extension_required` (HTTP 403) with the extension's name in `extension`.
+  It returns `extension_required` (HTTP 403) with the extension's name in `extension`. At the token
+  endpoint and at endpoints this protocol or an extension defines, such as conversations, the error
+  is a JSON body, like other errors there. At APIs, it goes in the `WWW-Authenticate` header, like
+  the errors in section 6.
+
+```json label="Response body: Company → Personal Agent"
+{ "error": "extension_required", "extension": "operations" }
+```
 
 ## 4. Sessions and authorization {#sessions}
 
@@ -386,6 +393,7 @@ Errors use the OAuth error response, with these codes:
 | `invalid_session`                      | 400    | The Session has ended, or belongs to a different Personal Agent or User. Start a new Session.                                         |
 | `account_mismatch`                     | 400    | The Session is signed in to a different account than the one requested. Start a new Session (4.4).                                    |
 | `invalid_dpop_proof`, `use_dpop_nonce` | 400    | The DPoP Proof is missing or invalid, or needs a nonce (4.3).                                                                         |
+| `extension_required`                   | 403    | The Company requires an extension the Personal Agent doesn't list, named in `extension` (3.3).                                        |
 | `rate_limited`                         | 429    | Too many requests for this `client_id`. Retry after the time in the `Retry-After` header.                                             |
 
 ### 4.3 Using Session Tokens {#sending-tokens}
@@ -1008,13 +1016,14 @@ These errors are returned in the `WWW-Authenticate` header ([RFC
 9449](https://www.rfc-editor.org/rfc/rfc9449), or [RFC 6750](https://www.rfc-editor.org/rfc/rfc6750)
 for Bearer tokens):
 
-| Error                | Status | Meaning                                                                                                                                                              |
-| -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `invalid_token`      | 401    | The token is missing or expired. The Personal Agent gets a new one (4.2, 4.8).                                                                                       |
-| `invalid_dpop_proof` | 401    | The DPoP Proof is missing or invalid (4.3).                                                                                                                          |
-| `use_dpop_nonce`     | 401    | The Company requires a nonce, given in the `DPoP-Nonce` header (4.3). The Personal Agent retries with a new proof that includes it.                                  |
-| `sign_in_required`   | 403    | The request needs a signed-in token. The Personal Agent uses its Account Token (4.8), or signs in (4.4) if it has none, and retries.                                 |
-| `insufficient_scope` | 403    | The token lacks required account scopes. The response names them in the `scope` attribute. The Personal Agent uses an eligible sign-in type to request access (4.4). |
+| Error                | Status | Meaning                                                                                                                                                                                          |
+| -------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `invalid_token`      | 401    | The token is missing or expired. The Personal Agent gets a new one (4.2, 4.8).                                                                                                                   |
+| `invalid_dpop_proof` | 401    | The DPoP Proof is missing or invalid (4.3).                                                                                                                                                      |
+| `use_dpop_nonce`     | 401    | The Company requires a nonce, given in the `DPoP-Nonce` header (4.3). The Personal Agent retries with a new proof that includes it.                                                              |
+| `sign_in_required`   | 403    | The request needs a signed-in token. The Personal Agent uses its Account Token (4.8), or signs in (4.4) if it has none, and retries.                                                             |
+| `insufficient_scope` | 403    | The token lacks required account scopes. The response names them in the `scope` attribute. The Personal Agent uses an eligible sign-in type to request access (4.4).                             |
+| `extension_required` | 403    | The request needs an extension the Personal Agent doesn't list, named in the `extension` attribute (3.3). An MCP server returns it only to refuse the Personal Agent entirely, not for one tool. |
 
 Because every token is issued to a known `client_id` and User, the Company always knows a request
 comes from a Personal Agent, which one, and for which User.
