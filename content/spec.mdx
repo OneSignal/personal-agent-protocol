@@ -156,6 +156,7 @@ issuer and receive its tokens.
   "revocation_endpoint": "https://auth.example.com/oauth/revoke",
   "authorization_endpoint": "https://auth.example.com/oauth/authorize",
   "device_authorization_endpoint": "https://auth.example.com/oauth/device",
+  "dpop_signing_alg_values_supported": ["ES256", "RS256"],
   "poppy_domains": ["example.com", "example.co.uk"]
 }
 ```
@@ -166,6 +167,10 @@ The Personal Agent takes these endpoints from the metadata:
 - `revocation_endpoint` revokes Account Tokens (4.9). Required.
 - `authorization_endpoint` starts Direct Sign-In (4.5). Required if `auth.direct` is present.
 - `device_authorization_endpoint` starts Device Sign-In (4.6). Required if `auth.device` is present.
+
+`dpop_signing_alg_values_supported` lists the algorithms the Company accepts for DPoP Proofs (4.3),
+as [RFC 9449](https://www.rfc-editor.org/rfc/rfc9449) §5.1 defines. Companies MUST publish it, and
+it MUST include `ES256`. Personal Agents MUST sign DPoP Proofs with an algorithm from it.
 
 The metadata MAY have other fields, which Personal Agents ignore. Personal Agents SHOULD cache it
 according to its HTTP caching headers.
@@ -392,6 +397,17 @@ Authorization: DPoP eyJhbGciOi…Lm9x
 DPoP: eyJ0eXAiOiJkcG9wK2p3dCIs…
 ```
 
+DPoP in this protocol is meant to match RFC 9449, and anything this section doesn't cover works as
+the RFC describes. Where this section and the RFC differ, this section applies. The choices it makes
+are:
+
+- Companies MUST publish `dpop_signing_alg_values_supported` and include `ES256` in it (3.2).
+- Personal Agents MUST support nonces.
+- The token endpoint MUST reject a reused `jti`. Elsewhere the check is optional, as in the RFC.
+- Session Tokens for MCP are Bearer tokens, and Companies MUST require DPoP everywhere else (below).
+  Each endpoint accepts only one scheme, so the RFC's rules for accepting both don't apply.
+- Companies don't need to support `dpop_jkt` (RFC 9449 §10).
+
 **Proof of possession.** Session Tokens are bound to a key the Personal Agent holds, so a copied
 token is useless without it. The Personal Agent generates a key pair for each User at each Company,
 and MAY use a new one for each Session. It keeps the private key to itself and signs a new proof for
@@ -420,19 +436,34 @@ every request, including token requests. A proof is a JWT with the public key in
   don't have one.
 - `nonce` is included when the Company requires one (below).
 
-When the Company issues a Session Token, it binds the token to the key in that request's proof. On
-every request, it MUST check that:
+When the Company issues a Session Token, it binds the token to the key in that request's proof. The
+Company MUST validate every proof as RFC 9449 §4.3 describes. That means checking that:
 
+- The request has exactly one `DPoP` header, holding a well-formed JWT with the claims above.
+- `typ` is `dpop+jwt`, `alg` is an asymmetric algorithm the Company accepts (3.2), never `none`,
+  and `jwk` holds a public key and no private key.
 - The proof's signature verifies with the key in its header.
-- That key is the one the Session Token is bound to.
 - `htm` and `htu` match the request.
-- `iat` is within the Company's acceptance window, such as one minute.
-- It hasn't accepted the same `jti` within that window.
-- `ath` matches the Session Token.
+- The proof was made within the Company's acceptance window, such as one minute. The Company judges
+  this by `iat`, or by when it issued the proof's `nonce`.
+- `nonce` matches one the Company issued, if it requires nonces (below).
+- On requests with a Session Token, the key is the one the token is bound to, and `ath` matches the
+  token.
+
+**Replayed proofs.** At the token endpoint, the Company MUST reject a proof whose `jti` it has
+already accepted within the acceptance window, because a replayed proof there could get a new token.
+Everywhere else it accepts DPoP Session Tokens, such as APIs and conversation endpoints, it MAY
+reject a reused `jti`, ideally across all its servers. RFC 9449 (§11.1) doesn't require this check,
+because servers behind one endpoint don't always share state. Without it, a copied proof still works
+only with the same Session Token (`ath`), for the same method and URL (`htm` and `htu`), and only
+within the acceptance window. A request that changes something then relies on being idempotent, so
+a replay doesn't repeat it. Conversation messages already are, through their IDs (7.3).
 
 A Company MAY require proofs to include a nonce it issued, as RFC 9449 describes, so proofs can't be
-made in advance. Personal Agents MUST support nonces. Failed checks return `invalid_dpop_proof` or
-`use_dpop_nonce` with the `WWW-Authenticate: DPoP` header.
+made in advance. Personal Agents MUST support nonces. A failed check returns `invalid_dpop_proof`,
+or `use_dpop_nonce` with the nonce to use in the `DPoP-Nonce` header. The token endpoint returns
+them as OAuth errors with HTTP 400 (4.2). APIs and conversation endpoints return HTTP 401 with the
+error in the `WWW-Authenticate: DPoP` header (section 6).
 
 **Bearer tokens.** MCP can't use proofs, because MCP authorization uses Bearer tokens. For MCP, the
 Personal Agent requests a Session Token without a proof, and the Company issues a `Bearer` token. To
@@ -909,8 +940,8 @@ User's own browser, which would then be using the Personal Agent's Session.
   accepted at the token endpoint.
 - `aud` is its endpoint, the assertion hasn't expired, and `exp` is no more than 60 seconds after
   `iat`.
-- It hasn't accepted the same `jti` before. Like DPoP Proofs (4.3), it only needs to remember a
-  `jti` until the assertion expires.
+- It hasn't accepted the same `jti` before. It only needs to remember a `jti` until the assertion
+  expires.
 - The Session is active and belongs to the same `client_id` and User.
 - `return_to` is on its own domain.
 
@@ -979,6 +1010,8 @@ for Bearer tokens):
 | Error                | Status | Meaning                                                                                                                                                              |
 | -------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `invalid_token`      | 401    | The token is missing or expired. The Personal Agent gets a new one (4.2, 4.8).                                                                                       |
+| `invalid_dpop_proof` | 401    | The DPoP Proof is missing or invalid (4.3).                                                                                                                          |
+| `use_dpop_nonce`     | 401    | The Company requires a nonce, given in the `DPoP-Nonce` header (4.3). The Personal Agent retries with a new proof that includes it.                                  |
 | `sign_in_required`   | 403    | The request needs a signed-in token. The Personal Agent uses its Account Token (4.8), or signs in (4.4) if it has none, and retries.                                 |
 | `insufficient_scope` | 403    | The token lacks required account scopes. The response names them in the `scope` attribute. The Personal Agent uses an eligible sign-in type to request access (4.4). |
 

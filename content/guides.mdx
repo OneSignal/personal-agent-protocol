@@ -80,7 +80,7 @@ documents and key sets. Each fetch goes to a URL the other party controls, so:
 - Give each conversation message an `id` with at least 128 random bits, and reuse it when you retry
   the message ([7.3](/docs/spec#sending-messages)).
 - Each retry needs a new DPoP proof, and a retried token request needs a new assertion. The company
-  rejects a `jti` it has already seen.
+  may reject a `jti` it has already seen.
 - Wait at least as long as `Retry-After` says on a 429 (MUST, [4.3](/docs/spec#sending-tokens)) or a 503.
 - Otherwise, back off exponentially with jitter, cap the delay, and limit the number of attempts.
 - Companies keep idempotency records for a set time, such as a day, scoped to the session. They
@@ -137,6 +137,8 @@ you derive the ID, start from an internal ID that is itself random.
 - Sign proofs in an HTTP client hook that sees the final method and URL. Don't let the client follow
   redirects with the old proof: each hop needs its own proof, and the `Authorization` header
   shouldn't follow a redirect to another host.
+- Sign proofs with an algorithm from the company's `dpop_signing_alg_values_supported`
+  ([3.2](/docs/spec#oauth-server)), and use ES256 when it's listed.
 - Personal agents MUST support nonces ([4.3](/docs/spec#sending-tokens)). On `use_dpop_nonce`, take
   the nonce from the `DPoP-Nonce` header, keep it for that server, and retry once with a new proof
   that includes it.
@@ -260,14 +262,17 @@ Idempotency-Key: 4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f
 Section [4.3](/docs/spec#sending-tokens) lists the checks you MUST make on every proof. To make them
 reliably:
 
-- Check that `typ` is `dpop+jwt`, that `alg` is allowed, and that `jwk` holds only a public key.
-- Keep one replay cache shared by every server, keyed by `jti` and holding entries for the
-  acceptance window. Otherwise a proof rejected by one server can be replayed at another.
+- Check that `typ` is `dpop+jwt`, that `alg` is one you list in `dpop_signing_alg_values_supported`
+  ([3.2](/docs/spec#oauth-server)), and that `jwk` holds only a public key.
+- Keep a replay cache keyed by `jti`, holding entries for the acceptance window. Your token endpoint
+  MUST have one, shared by every server behind it. Your APIs and conversation endpoint can have one
+  too, ideally shared the same way. Otherwise a proof accepted by one server can be replayed at
+  another.
 - Behind proxies and load balancers, compare `htu` with the public URL the personal agent used.
   Build it from your configured public origin, not from the `Host` header your server receives.
 - Use an acceptance window of about one minute, plus a small clock skew.
 - Require nonces if you want proofs that can't be made in advance. A nonce stays valid for a while,
-  so it doesn't stop a proof being replayed. You still need the shared replay cache.
+  so it doesn't stop a proof being replayed. It doesn't replace the replay cache.
 - Check whether your authorization server can issue DPoP-bound tokens. If it can't, put a gateway in
   front of both your token endpoint and your APIs and conversation endpoint. It checks the proof on
   each token request, records the key for the token it issues, and checks that key on every later
