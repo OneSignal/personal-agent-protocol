@@ -593,9 +593,11 @@ granted scopes, and when it expires. It also keeps a record for each Session: th
 User ID, and the account the Session is signed in to, if any.
 
 A Session is signed in to at most one account. Once it has been, it can't switch to another: the
-Company returns `account_mismatch`, and the Personal Agent starts a new Session. A User with two
-accounts at the same Company, such as a personal and a business account, has an Account Token for
-each and uses separate Sessions for them.
+Company returns `account_mismatch`, and the Personal Agent starts a new Session. This applies to
+every sign-in type. If the User signs in to a different account than the Session's, the code
+exchange, device poll, or Mediated Sign-In returns `account_mismatch` and issues no tokens. The User
+then signs in again in a new Session. A User with two accounts at the same Company, such as a
+personal and a business account, has an Account Token for each and uses separate Sessions for them.
 
 Each Session Token reflects the Session as it was when the token was issued. Several tasks can share
 one Session, so one may still hold a signed-out token after another task signed in. A request with
