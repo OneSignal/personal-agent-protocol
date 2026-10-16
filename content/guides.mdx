@@ -43,8 +43,9 @@ Assertions and DPoP proofs are JWTs. To sign and verify them consistently:
   ([4.1](/docs/spec#agent-identity)). Ignore `jku`, `x5u`, and any key embedded in an assertion.
   DPoP proofs are the one exception: the public key in their `jwk` header is how they work
   ([4.3](/docs/spec#sending-tokens)).
-- Check `aud`, `exp`, and `iat`. Allow a small clock skew, such as 30 seconds, and reject assertions
-  that claim a long lifetime.
+- Check `aud`, `exp`, and `iat`. A client assertion or Session assertion has the company's
+  `auth.issuer` as its `aud`, never an endpoint URL ([4.1](/docs/spec#agent-identity)). Allow a
+  small clock skew, such as 30 seconds, and reject assertions that claim a long lifetime.
 - Make each `jti` at least 128 random bits.
 
 ### Rotating keys {#both-key-rotation}
