@@ -205,8 +205,11 @@ Idempotency-Key: 4f1c2e8a-9b7d-4c3e-a5f6-0d8b1e2c3a4f
   code, so secret values never pass through the model.
 - Secret fields MUST never be shown back to the user, logged, or sent anywhere other than the
   company's `auth.mediated.endpoint` ([4.7](/docs/spec#mediated-sign-in)).
-- Once you have an account token, discard the credentials. If the user needs to sign in again later,
-  ask again.
+- After sign-in, you MUST either discard the credentials or keep them only in a credential store
+  the user chose, such as a password manager ([4.7](/docs/spec#mediated-sign-in)). If you discard
+  them and the user needs to sign in again later, ask again.
+- After the user disconnects you or the company revokes your access, don't sign in again with
+  stored credentials unless the user asks you to.
 - When the company asks for a one-time code, ask the user for it and submit only the code.
 
 ### Native and distributed apps {#agent-native-apps}
@@ -325,7 +328,8 @@ If you offer mediated sign-in ([4.7](/docs/spec#mediated-sign-in)), you MUST rat
 MUST NOT return credentials in any response. Also:
 
 - Rate-limit by account, by `client_id`, and by user ID, and cap wrong one-time codes.
-- Require a one-time code when a sign-in looks unusual.
+- Require a one-time code when a sign-in looks unusual, including a personal agent's first mediated
+  sign-in after the user disconnected it.
 - Return the same `failed` response for an unknown account and a wrong password, so responses don't
   reveal whether an account exists.
 - Never store raw credentials or codes, including in logs, traces, and idempotency records.

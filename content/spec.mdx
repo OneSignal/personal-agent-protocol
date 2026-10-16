@@ -829,6 +829,13 @@ Personal Agents MUST NOT send credentials to any endpoint other than the Company
 `auth.mediated.endpoint`. Once it has an Account Token, the Personal Agent doesn't need the
 credentials to start signed-in Sessions.
 
+After a sign-in ends, as `complete`, `failed`, or `expired`, the Personal Agent MUST either discard
+the credentials or keep them only in a credential store the User chose, such as a password manager.
+It MUST NOT keep them anywhere else, including model context and logs. After the User or the Company
+revokes the Personal Agent's access (4.9), the Personal Agent SHOULD NOT sign in again with stored
+credentials unless the User asks it to. Otherwise a stored password could undo the User's decision
+to disconnect it.
+
 ### 4.8 Account Tokens {#account-tokens}
 
 An Account Token lets the Personal Agent get signed-in Session Tokens later without asking the User
