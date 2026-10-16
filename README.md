@@ -34,7 +34,7 @@ has been published for four days.
 
 - `/`: the overview, with interactive walkthroughs
 - `/docs/introduction`, `/docs/spec`, `/docs/extensions`, `/docs/extensions/operations`,
-  `/docs/guides`, `/docs/path-to-1`: the docs
+  `/docs/extensions/notifications`, `/docs/guides`, `/docs/path-to-1`: the docs
 - `/license` and `/license/contributions`: the license and the contribution terms
 
 Each docs page is also served as Markdown at the same path with `.md`, for example

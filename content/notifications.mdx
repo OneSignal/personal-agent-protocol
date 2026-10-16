@@ -1,0 +1,417 @@
+# Notifications extension
+
+## 1. Introduction {#intro}
+
+The notifications extension allows a Company to notify the Personal Agent of an event outside of
+an active conversation. This saves the Personal Agent from polling for updates, and lets it hear
+about changes it didn't know to ask about. Examples include a cancelled flight, a shipped order, or
+a late support reply.
+
+A notification is signed by the Company and carries no content of its own. It names the Company,
+the User, and what to look at. The Personal Agent reads the details in a signed-in Session, so
+everything it acts on comes over channels the specification already secures:
+
+| Step      | Who            | What happens                                                                                                      |
+| --------- | -------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Subscribe | Personal Agent | The Personal Agent asks the Company for notifications about the User's account (section 3).                       |
+| Notify    | Company        | The Company sends a short notification to the Personal Agent's endpoint, until it's delivered (sections 4 and 5). |
+| Follow up | Personal Agent | The Personal Agent reads the conversation, page, or API object it points to, and decides what to do (section 6).  |
+
+For example, an airline cancels a flight and sends a notification that points to the booking, as a
+web page and as an API object. The Personal Agent looks up the booking, asks the User about the
+rebooking options, and rebooks. With the [operations extension](/docs/extensions/operations), the
+notification can also carry the options as operations to confirm directly. If nothing is done in
+time, the airline reaches the User through its own channels, such as push, SMS, or email.
+
+This page defines version 1 of the `notifications` extension, for the Personal Agent Protocol
+draft. It uses the terms, Sessions, and tokens defined in the [specification](/docs/spec).
+
+## 2. Advertising support {#support}
+
+A Company that sends notifications lists the extension in its `poppy.json`, with the URL of the
+public keys it signs them with (section 4), and the URL where Personal Agents subscribe (section 3):
+
+```json label="Excerpt from poppy.json"
+"extensions": {
+  "notifications": {
+    "version": "1",
+    "jwks_uri": "https://example.com/poppy/notification-keys.json",
+    "subscription_endpoint": "https://api.example.com/poppy/notifications/subscription"
+  }
+}
+```
+
+- `jwks_uri` MUST be an HTTPS URL on a domain in the issuer's `poppy_domains` (spec 3.2), or a
+  subdomain of one. Every domain that names the same issuer MUST list the same `jwks_uri`.
+- The keys at `jwks_uri` MUST be used only to sign notifications. They are separate from any keys
+  the Company's issuer uses for tokens, and Personal Agents verify notifications against them alone.
+- `subscription_endpoint` accepts DPoP Session Tokens (spec 4.3). Like an API entry, it MAY include
+  a `resource` to require tokens issued for it.
+- A Company MAY let a provider sign notifications for it (2.1).
+
+A Personal Agent that accepts notifications lists the extension in its client metadata document
+(spec 4.1), with the URL it receives them at:
+
+```json label="Excerpt from the client metadata document"
+"extensions": {
+  "notifications": {
+    "version": "1",
+    "endpoint": "https://agent.example/poppy/notifications"
+  }
+}
+```
+
+`endpoint` MUST be an HTTPS URL on the same domain as `client_id`. It receives notifications for all
+of the Personal Agent's Users.
+
+The Company fetches the metadata document from the `client_id` in its record of the User's Account
+Token (spec 4.4), checks it as in spec 4.1, and caches it according to its HTTP caching headers. A
+provider (2.1) does the same with the `client_id` the Company gives it.
+
+To move its endpoint, the Personal Agent publishes the new `endpoint` in its metadata document, and
+returns `404` from the old one. A Company that gets a `404` fetches the document again and sends to
+the new endpoint (5.3).
+
+A Company MUST NOT send notifications to a Personal Agent whose metadata document doesn't list the
+extension (5.3). To stop notifications from every Company without revoking any Account Tokens, the
+Personal Agent removes the extension from its metadata document and returns `410` from its endpoint
+(5.3). To stop them for one account, it unsubscribes (section 3).
+
+### 2.1 Sending through a provider {#providers}
+
+A Company can send notifications through a provider, such as a messaging service, that signs and
+delivers them for it. The provider makes a key pair for that Company alone and keeps the private
+key. The Company adds the public key to its notification key set, with a `kid` of its own.
+
+Here the same provider sends for two Companies, with a different key at each:
+
+```json label="GET https://example.com/poppy/notification-keys.json"
+{
+  "keys": [
+    { "kid": "ntf-2026-10", "kty": "EC", "crv": "P-256", "x": "f83O…", "y": "x_FE…" },
+    { "kid": "provider-2026-10", "kty": "EC", "crv": "P-256", "x": "WKn-…", "y": "y77t…" }
+  ]
+}
+```
+
+```json label="GET https://example.org/poppy/notification-keys.json"
+{
+  "keys": [
+    { "kid": "org-ntf-1", "kty": "EC", "crv": "P-256", "x": "Ze2l…", "y": "Gq8h…" },
+    { "kid": "provider-2026-10", "kty": "EC", "crv": "P-256", "x": "9Rbt…", "y": "Lm4c…" }
+  ]
+}
+```
+
+- A provider MUST NOT use a key pair for more than one Company, or share one Company's key with
+  another.
+- A notification the provider signs is the Company's notification. Its `iss` is the Company's
+  issuer, and the Personal Agent checks and handles it like any other.
+- To end a provider's access, the Company removes the provider's key from the set, and the provider
+  deletes the private key.
+- The Company MUST NOT add the provider's key to the keys its issuer uses for tokens, or give the
+  provider its own private keys or the User's tokens. It gives the provider only the Personal
+  Agent's `client_id`, the User ID, and what to send.
+
+## 3. Subscribing {#subscribing}
+
+A Company sends notifications about an account only after the Personal Agent subscribes to them.
+Subscriptions start disabled. The Personal Agent decides when to subscribe, for example when the
+User asks to hear about a booking.
+
+The Personal Agent subscribes from a Session signed in to the account, with a `PUT` that sets
+`subscribed` to `true`:
+
+```http label="Request: Personal Agent → Company"
+PUT https://api.example.com/poppy/notifications/subscription
+Authorization: DPoP eyJhbGciOi…Qp4w
+DPoP: eyJ0eXAiOiJkcG9wK2p3dCIs…
+Content-Type: application/json
+
+{
+  "subscribed": true
+}
+```
+
+```json label="Response: Company → Personal Agent"
+{
+  "subscribed": true
+}
+```
+
+It unsubscribes the same way, with `subscribed` set to `false`. It reads whether it is subscribed
+with a `GET` at the same URL. Both return the current state in the same form.
+
+- The request MUST use a signed-in Session Token. The subscription is for the account the Session
+  is signed in to. A signed-out request gets `sign_in_required` (spec section 6).
+- The Company decides which scopes it requires, as for its APIs (spec 4.4). `poppy:read`, or a
+  narrower scope of its own, is usually enough. A request without them gets `insufficient_scope`.
+- A subscription belongs to the `client_id`, User ID, and account, as in the Company's record of an
+  Account Token (spec 4.4). There is at most one for each. Sending the state it already has changes
+  nothing and returns the current state.
+- The body sets the whole subscription, and `subscribed` is required. A request without it gets
+  `invalid_request`. The Company ignores fields it doesn't recognize (spec 3.3).
+- A subscription continues when the Company rotates the Account Token, or when a new sign-in
+  replaces it (spec 4.4 and 4.8). It ends when no valid Account Token for that `client_id`, User ID,
+  and account is left: when the Personal Agent signs out of the account or the User disconnects it
+  (spec 4.9), or when the Account Token expires. The Company then stops sending (5.3). After signing
+  in again, the Personal Agent subscribes again.
+- The Company MAY end a subscription on its own, for example when the User turns off notifications
+  to the Personal Agent in their account settings, or after an `unknown_account` error (5.2). The
+  Personal Agent finds out when it reads the subscription. It MUST NOT subscribe again unless the
+  User asks it to, or until it signs in to the account again (spec 4.4). If the Personal Agent
+  subscribes again, the Company accepts it.
+
+The subscription endpoint returns errors as JSON with an `error` code. The token errors in spec
+section 6 also apply.
+
+| Error                | Status | Meaning                                                                                                    |
+| -------------------- | ------ | ---------------------------------------------------------------------------------------------------------- |
+| `invalid_request`    | 400    | The body is missing, isn't JSON, or has no `subscribed`.                                                   |
+| `extension_required` | 403    | The Personal Agent's client metadata document doesn't list the extension, named in `extension` (spec 3.3). |
+
+## 4. Sending a notification {#sending}
+
+A notification is a JWT signed with a key from the notification `jwks_uri` (section 2), sent only
+about an account the Personal Agent has subscribed to (section 3), as a POST with the media type
+`application/poppy-notification+jwt`:
+
+```http label="Request: Company → Personal Agent"
+POST https://agent.example/poppy/notifications
+Content-Type: application/poppy-notification+jwt
+
+eyJ0eXAiOiJwb3BweS1ub3RpZmljYXRpb24rand0IiwiYWxnIjoiRVMyNTYiLCJraWQiOiJudGYtMjAyNi0xMCJ9…
+```
+
+```http label="Response: Personal Agent → Company"
+HTTP/1.1 202 Accepted
+```
+
+The JWT's header has `typ` set to `poppy-notification+jwt`, so a notification can't be mistaken for
+any other JWT the Company signs ([RFC 8725](https://www.rfc-editor.org/rfc/rfc8725)):
+
+```json label="JWT header"
+{
+  "typ": "poppy-notification+jwt",
+  "alg": "ES256",
+  "kid": "ntf-2026-10"
+}
+```
+
+```json label="JWT payload"
+{
+  "iss": "https://auth.example.com",
+  "aud": "https://agent.example/agent.json",
+  "sub": "usr_Q7c1vK",
+  "iat": 1791245700,
+  "exp": 1791259200,
+  "jti": "ntf_8Jw3",
+  "event": "flight.cancelled",
+  "url": "https://example.com/trips/bkg_NW482",
+  "object": { "type": "booking", "id": "bkg_NW482" },
+  "extensions": {
+    "operations": {
+      "operation_ids": ["reb_815", "reb_940", "reb_705"]
+    }
+  }
+}
+```
+
+| Claim             | Req.      | Description                                                                                                                                                                                                                                        |
+| ----------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iss`             | Yes       | The Company's `auth.issuer` (spec 3.2).                                                                                                                                                                                                            |
+| `aud`             | Yes       | The Personal Agent's `client_id` (spec 4.1), as a single string.                                                                                                                                                                                   |
+| `sub`             | Yes       | The User ID the Personal Agent gave this Company (spec 4.2).                                                                                                                                                                                       |
+| `iat`             | Yes       | When the Company signed the notification.                                                                                                                                                                                                          |
+| `exp`             | No        | When the notification stops mattering, as in [RFC 7519](https://www.rfc-editor.org/rfc/rfc7519). It MUST be after `iat`, and no more than 24 hours after it. The notification expires at `exp`, or 24 hours after `iat` without one.               |
+| `jti`             | Yes       | The notification ID, in JWT's standard ID claim ([RFC 7519](https://www.rfc-editor.org/rfc/rfc7519)). Unique at this Company, and a retry has the same ID. Outside the JWT, such as in a conversation (section 6), it is called `notification_id`. |
+| `event`           | Yes       | What happened, as a name the Company defines, such as `order.shipped`.                                                                                                                                                                             |
+| `conversation_id` | See below | A conversation the Personal Agent started earlier that has a new event from the Company (spec section 7). Only if the Company's `poppy.json` has an `agent` entry.                                                                                 |
+| `url`             | See below | A page about what happened, on a domain in `poppy_domains` (spec 3.2). The Personal Agent opens it signed in when it can (section 6).                                                                                                              |
+| `object`          | See below | The Company's object it is about, as a `type` and `id` its APIs use, such as a booking or an order. Only if the Company's `poppy.json` has an `apis` entry.                                                                                        |
+| `extensions`      | No        | Details for other extensions (4.1).                                                                                                                                                                                                                |
+
+It MUST include at least one of `conversation_id`, `url`, or `object`, unless the Company's
+`poppy.json` has an `agent` entry (spec 3.1, section 6). It SHOULD include every one that applies.
+
+Before following up, the Personal Agent MUST check that:
+
+- `typ` is `poppy-notification+jwt`.
+- `aud` is its own `client_id`, and `iss` is the issuer of a Company it holds an Account Token at.
+- The signature verifies with a key from the notification `jwks_uri` in the `poppy.json` it used for
+  that Company, checked as in spec 3.2.
+- `iat` is no more than 60 seconds in the future.
+- `exp`, if present, is after `iat` and no more than 24 hours after it.
+- The notification hasn't expired.
+- `sub` is a User it holds an Account Token for at that Company.
+
+The Personal Agent SHOULD cache the keys according to their HTTP caching headers, for at most 24
+hours, and fetch them again when a notification's `kid` isn't among them. A new key then works right
+away, and a removed key, such as a former provider's (2.1), stops working within 24 hours.
+
+If one of the checks fails, the Personal Agent ignores the notification, and responds as in 5.2.
+
+### 4.1 Extensions in a notification {#notification-extensions}
+
+`extensions` is keyed by extension name, as in spec 3.3:
+
+- Each extension defines what goes in its entry.
+- The Company MAY include an entry for any extension, whether or not the Personal Agent lists it.
+- The Personal Agent ignores entries for extensions it doesn't support.
+- An entry doesn't replace `conversation_id`, `url`, or `object` (section 4).
+
+For the [operations extension](/docs/extensions/operations), the entry lists operations the
+notification is about in `operation_ids` (section 6).
+
+An operation in a notification belongs to the User's account, as if it had been proposed in a
+signed-in Session (operations 3.2). Any Session of the same Personal Agent and User that is signed
+in to that account can read, confirm, and cancel it.
+
+## 5. Delivery {#delivery}
+
+A `202` means the Personal Agent received the notification and it passed the checks in section 4.
+The Personal Agent returns it as soon as the checks pass, and follows up afterwards, if it chooses
+to (section 6). The Company MUST NOT treat a `202` as meaning the User has seen the notification, or
+that anything has been done about it.
+
+The Company retries until delivery or until it gives up (5.3), so a notification can arrive more
+than once (5.1), even after a `202` the Company didn't receive. Notifications can also arrive out of
+order. The Personal Agent MUST NOT rely on arrival order. It reads the current state when it follows
+up (section 6).
+
+### 5.1 Idempotency {#idempotency}
+
+The Personal Agent follows up on each notification once, however many times it arrives, including
+at the same time or at both an old and a new endpoint:
+
+- A notification is identified by `iss` and `jti` together. The Company MUST NOT use the same `jti`
+  for two different notifications.
+- The Personal Agent records a notification's ID before it returns `202`, and returns `202` again
+  for a notification it has already recorded, without following up. It records only notifications
+  it accepts. A retry of one that got an error is handled as new.
+- The Personal Agent MUST remember each notification it accepts until it expires (section 4).
+
+### 5.2 Responses {#responses}
+
+The Personal Agent responds with one of these statuses:
+
+| Status | Error                    | Meaning                                                                                           | What the Company does                                                                  |
+| ------ | ------------------------ | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `202`  |                          | Delivered, now or before.                                                                         | Stops. It treats any `2xx` the same way.                                               |
+| `400`  | See below                | The Personal Agent didn't accept the notification, for the reason in `error`.                     | What the `error` code says (below).                                                    |
+| `404`  |                          | The endpoint has moved (section 2).                                                               | Fetches the metadata document again, and retries at the new endpoint (5.3).            |
+| `410`  |                          | The Personal Agent no longer supports the extension (section 2).                                  | Fetches the metadata document again, and stops sending if the extension is gone (5.3). |
+| `413`  | `notification_too_large` | The notification is over 8 KiB.                                                                   | Doesn't retry.                                                                         |
+| `429`  | `rate_limited`           | The Personal Agent is getting more notifications than it can take, for the `context` in the body. | Waits, then retries (5.4).                                                             |
+| `5xx`  |                          | A temporary failure at the Personal Agent.                                                        | Retries with backoff (5.3).                                                            |
+
+A `400` has a JSON body with an `error` code, as on the subscription endpoint (section 3). Each code
+says what the Company does next:
+
+```http label="Response: Personal Agent → Company"
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{
+  "error": "unknown_account"
+}
+```
+
+| Error                  | Meaning                                                                                             | What the Company does                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `invalid_notification` | The body isn't a notification, or one of the checks in section 4 other than `sub` failed.           | Doesn't retry.                                                                           |
+| `unknown_account`      | The notification is valid, but the Personal Agent holds no Account Token for `sub` at this Company. | Doesn't retry, and ends the subscription by setting `subscribed` to `false` (section 3). |
+
+- A `400` without an `error` code the Company recognizes is handled as `invalid_notification`.
+- The Company doesn't retry any other `4xx`. A `3xx`, or no response, is a failed delivery (5.3).
+- A notification MUST be at most 8 KiB, and the Personal Agent MUST accept any notification up to
+  that size.
+- `invalid_notification` doesn't say which check failed, and has no detail beyond the code. A
+  notification that fails a check may be forged, and detail would help the forger. A Company that
+  gets it can run the checks in section 4 on its own notification.
+- The Personal Agent returns `unknown_account` only for a notification whose signature verifies, so
+  only the Company can learn whether the Personal Agent holds an account for one of its User IDs.
+- `unknown_account` ends only the subscription. The Company doesn't revoke the Account Token because
+  of it.
+
+### 5.3 Retries {#retries}
+
+When a delivery fails, the Company MUST retry the same notification:
+
+- A retry sends the same JWT unchanged, with the same `jti`, `iat`, and `exp`.
+- The Company retries with exponential backoff. It waits at least 10 seconds before the first retry,
+  at least doubles the wait each time up to an hour, and adds random jitter.
+- It gives up once the notification expires (section 4).
+  It MAY give up sooner, for example when the notification no longer matters.
+- The Company keeps a key in its notification key set until every notification it signed with that
+  key has expired. It MAY remove a key sooner
+  if the key has leaked, or to end a provider's access (2.1).
+- The Company MUST NOT follow redirects when it sends a notification. The endpoint moves only
+  through the metadata document (section 2).
+- If a delivery gets a `404`, the endpoint has moved. If it gets a `410`, the Personal Agent no
+  longer supports the extension. Either way, the Company MUST fetch the metadata document again,
+  even if its copy is fresh. It SHOULD do the same after a `3xx`, or when it can't connect to the
+  endpoint over several retries. It then retries at the `endpoint` in the new copy, or stops sending
+  if the extension is gone (section 2). It fetches again this way at most once a minute for each
+  `client_id`, and a retry within that minute uses the copy it just fetched.
+- If the new copy still lists the endpoint that returned the `404`, or still lists the extension
+  after a `410`, the Company gives up on the notification.
+
+The Company MUST stop sending notifications, including retries of ones it hasn't delivered:
+
+- About an account, when the subscription ends (section 3).
+- To a Personal Agent, when the Company's copy of its metadata document no longer lists the
+  extension (section 2), or when the Company revokes its `client_id` (spec 4.1).
+
+### 5.4 Rate limits {#rate-limits}
+
+A Personal Agent that gets more notifications than it can take returns `429`, with a `Retry-After`
+header and a `context` that says which notifications the limit covers:
+
+```http label="Response: Personal Agent → Company"
+HTTP/1.1 429 Too Many Requests
+Retry-After: 120
+Content-Type: application/json
+
+{
+  "error": "rate_limited",
+  "context": "user"
+}
+```
+
+| Context   | The limit covers            | What the Company holds                              |
+| --------- | --------------------------- | --------------------------------------------------- |
+| `user`    | One User at this Company.   | Notifications with that `sub`. Others still go out. |
+| `company` | Every User at this Company. | Every notification to this `client_id`.             |
+
+- The Personal Agent SHOULD include `Retry-After` with a `429` or a `503`.
+- The Company holds every notification the limit covers, including retries, until `Retry-After` has
+  passed, or for at least 60 seconds without it. It waits for `Retry-After` after a `503` too.
+- A missing or unrecognized `context` is handled as `company`.
+- When limits overlap, a notification waits until none that covers it is in effect.
+- Afterwards, the Company sends what it held over time, not all at once, and still gives up on any
+  that has expired (5.3).
+
+## 6. Following up {#following-up}
+
+The Personal Agent follows up with the Company named in `iss`, from a signed-in Session where it
+can, using whichever of these it supports:
+
+- For `conversation_id`, it reads the conversation's events from its saved cursor (spec 7.5).
+- For `url`, it opens the page signed in when it can, by joining its browser to a signed-in Session
+  (spec section 5). Otherwise it opens the page signed out.
+- For `object`, it looks up the object through the Company's APIs (spec section 6).
+- If the Company's `poppy.json` has an `agent` entry, it can start a conversation about the
+  notification (spec 7.3). The first message carries the notification ID (`jti`) in
+  `notification_id`, next to `text` and `data` (spec 7.4).
+- For an entry in `extensions` it supports, it follows that extension's rules (4.1). For each of
+  `operation_ids`, it reads the operation (operations section 6), and approves, confirms, or cancels
+  it as in operations sections 5 and 7, using the terms it reads.
+
+The Personal Agent decides whether, when, and how the User hears about what it finds. It MUST NOT
+treat a notification as the User's approval, and MUST NOT act on a notification it couldn't follow
+up on.
+
+If the Personal Agent can't use any of the ways to follow up, for example because it doesn't use
+the Company's APIs and the notification has only an `object`, it ignores the notification. Whether
+the Company reaches the User another way, and when, is the Company's decision.

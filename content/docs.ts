@@ -75,6 +75,15 @@ export const DOCS_TABS: DocsTab[] = [
                     "How a company asks a personal agent to confirm an action before performing it, with approval tied to exact terms, one record across channels, and no duplicate execution.",
                 outlineDepth: 3,
             },
+            {
+                href: "/docs/extensions/notifications",
+                file: "notifications.mdx",
+                navTitle: "Notifications",
+                title: "Personal Agent Protocol: Notifications extension (proposed)",
+                description:
+                    "How a company notifies a personal agent when no request is open, with a short notification that points the agent to what to do next.",
+                outlineDepth: 3,
+            },
         ],
     },
     {
