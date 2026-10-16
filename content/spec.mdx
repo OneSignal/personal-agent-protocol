@@ -391,7 +391,7 @@ Errors use the OAuth error response, with these codes:
 | `invalid_client`                       | 401    | The Company doesn't accept this `client_id`: it is unregistered, blocked, or revoked, or its metadata or signature doesn't check out. |
 | `invalid_grant`                        | 400    | The assertion or Account Token is missing, expired, reused, revoked, or malformed.                                                    |
 | `invalid_session`                      | 400    | The Session has ended, or belongs to a different Personal Agent or User. Start a new Session.                                         |
-| `account_mismatch`                     | 400    | The Session is signed in to a different account than the one requested. Start a new Session (4.4).                                    |
+| `account_mismatch`                     | 400    | The Session is, or was, signed in to a different account than the one requested. Start a new Session (4.4).                           |
 | `invalid_dpop_proof`, `use_dpop_nonce` | 400    | The DPoP Proof is missing or invalid, or needs a nonce (4.3).                                                                         |
 | `extension_required`                   | 403    | The Company requires an extension the Personal Agent doesn't list, named in `extension` (3.3).                                        |
 | `rate_limited`                         | 429    | Too many requests for this `client_id`. Retry after the time in the `Retry-After` header.                                             |
@@ -592,12 +592,13 @@ The Company keeps a record for each Account Token: the `client_id`, the User ID,
 granted scopes, and when it expires. It also keeps a record for each Session: the `client_id`, the
 User ID, and the account the Session is signed in to, if any.
 
-A Session is signed in to at most one account. Once it has been, it can't switch to another: the
-Company returns `account_mismatch`, and the Personal Agent starts a new Session. This applies to
-every sign-in type. If the User signs in to a different account than the Session's, the code
-exchange, device poll, or Mediated Sign-In returns `account_mismatch` and issues no tokens. The User
-then signs in again in a new Session. A User with two accounts at the same Company, such as a
-personal and a business account, has an Account Token for each and uses separate Sessions for them.
+A Session is signed in to at most one account. Once it has been, it can't switch to another, even
+after it is signed out (4.9): the Company returns `account_mismatch`, and the Personal Agent starts
+a new Session. This applies to every sign-in type. If the User signs in to a different account than
+the Session's, the code exchange, device poll, or Mediated Sign-In returns `account_mismatch` and
+issues no tokens. The User then signs in again in a new Session. A User with two accounts at the
+same Company, such as a personal and a business account, has an Account Token for each and uses
+separate Sessions for them.
 
 Each Session Token reflects the Session as it was when the token was issued. Several tasks can share
 one Session, so one may still hold a signed-out token after another task signed in. A request with
@@ -818,7 +819,7 @@ the token endpoint:
 | Error               | Status | Meaning                                                                                        |
 | ------------------- | ------ | ---------------------------------------------------------------------------------------------- |
 | `invalid_scope`     | 400    | The scopes are missing, unknown, or not available for Mediated Sign-In (4.4).                  |
-| `account_mismatch`  | 400    | The Session is signed in to a different account than the credentials are for (4.4).            |
+| `account_mismatch`  | 400    | The Session is, or was, signed in to a different account than the credentials are for (4.4).   |
 | `sign_in_not_found` | 404    | The `sign_in_id` is unknown or was started by a different Session. Both return the same error. |
 
 Accepting credentials from a Personal Agent puts more responsibility on the Company than Direct
@@ -858,9 +859,9 @@ it (below).
 - Companies MUST accept an Account Token only at their `token_endpoint` and `revocation_endpoint`,
   and only from the `client_id` it was issued to, authenticated by its client assertion. A copied
   Account Token is useless without the Personal Agent's private key.
-- The Session MUST belong to the same `client_id` and User ID as the Account Token, and be signed
-  out or signed in to the same account. Otherwise the Company returns `invalid_session` or
-  `account_mismatch`.
+- The Session MUST belong to the same `client_id` and User ID as the Account Token, and MUST NOT
+  have been signed in to a different account, even if it is now signed out (4.4). Otherwise the
+  Company returns `invalid_session` or `account_mismatch`.
 - `scope` MAY ask for fewer scopes than the Account Token has, for example read-only access for a
   task that only looks things up. It can't ask for more.
 - Using an Account Token doesn't extend its lifetime. A Company MAY return a new Account Token in
@@ -889,9 +890,10 @@ token=pat_8Hk2…Wq1
 
 The Company revokes the Account Token and signs out every Session signed in with it. Usually those
 Sessions continue signed out, so a cart or an open conversation carries on: the Personal Agent
-renews them with its assertion (4.2) and gets signed-out Session Tokens. A Company MAY end the
-Sessions instead, if its policy is to clear everything at sign-out. Renewal then returns
-`invalid_session`, and the Personal Agent starts a new Session.
+renews them with its assertion (4.2) and gets signed-out Session Tokens. Such a Session can be
+signed in again only to the same account (4.4). A Company MAY end the Sessions instead, if its
+policy is to clear everything at sign-out. Renewal then returns `invalid_session`, and the Personal
+Agent starts a new Session.
 
 Session Tokens issued before sign-out may still be valid. Companies SHOULD check on each request
 whether the Session is still signed in, so sign-out takes effect right away. A Company that doesn't
