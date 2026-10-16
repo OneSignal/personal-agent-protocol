@@ -1562,7 +1562,60 @@ OAuth error responses:
 | `invalid_request`          | 400    | The request is malformed, such as a message with none of `text`, `data`, or `context`, an ID with characters not allowed (7.2), or a `wait` that isn't a whole number of seconds. |
 | `rate_limited`             | 429    | Too many requests. Retry after the time in the `Retry-After` header (4.3).                                                                                                        |
 
-## 8. References {#references}
+## 8. Security considerations {#security}
+
+This section collects risks that cut across the protocol. The sections it points to hold the
+detailed rules.
+
+### 8.1 Content from Companies {#untrusted-content}
+
+A Personal Agent passes what a Company returns to its model: conversation messages, API
+descriptions and responses, MCP tool descriptions and results, web pages, and, with the Operations
+extension, an operation's `summary`. The same model may hold the User's personal context and have
+Sessions open at other Companies. A malicious or compromised Company can write content that tries to
+direct the model, known as prompt injection.
+
+- Personal Agents MUST treat content from a Company as data, not as instructions. Only the User
+  decides what the Personal Agent does.
+- A Personal Agent MUST NOT act at one Company, or send it information, because content from another
+  Company asked it to. It acts at a Company only when the User's task needs it.
+- A Personal Agent SHOULD send a Company only information relevant to the User's task. That
+  includes context that helps the Company handle it, such as the reason for a return or a deadline
+  the User has. It doesn't include unrelated details from the User's context or from other
+  Companies.
+- Text from a Company is never the User's approval or consent. The Operations extension states this
+  for approving an operation ([Operations 5.1](/docs/extensions/operations#approval)).
+
+### 8.2 Secrets and the model {#secrets}
+
+A model can be led to repeat what is in its context, so a secret in context can leak through any
+message the Personal Agent sends. Account Tokens MUST NOT go in model context (4.8). Credentials
+from Mediated Sign-In are never shown back or sent anywhere except the Company, and once a sign-in
+ends they are discarded or kept only in a credential store the User chose (4.7). Personal Agents
+SHOULD keep every other secret out of model context too, including Session Tokens, private keys,
+device codes, and one-time codes, and sign and send requests in code the model can't read. The
+[guides](/docs/guides#both-secrets) list these secrets and how to handle them.
+
+### 8.3 What a domain vouches for {#trust}
+
+A Company's `poppy.json`, served on its own domain (section 3), is where the Personal Agent learns
+everything about the Company: its issuer, its sign-in types, the Mediated Sign-In endpoint, its APIs,
+and its Company Agent. Whoever controls that document speaks for the Company at that domain, as
+whoever controls its website does today. The issuer check in 3.2 protects in the other direction: it
+stops a domain from claiming another Company's issuer and receiving its tokens. It doesn't make the
+issuer metadata more trustworthy than `poppy.json`, because the document chooses the issuer.
+
+### 8.4 Assertions {#assertion-audience}
+
+A Personal Agent works with many Companies it has no prior relationship with, and each Company's
+metadata names its own endpoints, which nobody checks (3.2). A malicious Company could name another
+Company's token endpoint in its metadata. If assertions were addressed to that endpoint, the
+malicious Company could collect them at its other endpoints and replay them at the other Company.
+That is why every assertion names the Company's `auth.issuer` in `aud` (4.1, 4.2). The issuer is the
+value the Personal Agent verified for that Company, so an assertion collected by one Company is
+rejected by every other.
+
+## 9. References {#references}
 
 This draft uses these standards and versions:
 

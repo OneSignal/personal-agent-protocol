@@ -233,6 +233,10 @@ one of two ways:
 - The Personal Agent MUST show the User the Company's name and the revision's `summary`, and MUST
   take the User's answer through its own interface. It MUST NOT treat text from the Company, such as
   a conversation message, as the User's approval.
+- When the revision has `terms`, the Personal Agent SHOULD show the User the values that matter
+  next to the `summary`, such as amounts, dates, and items, or check that they agree with it, before
+  asking for approval. The Company writes both, so the `summary` alone could describe something
+  other than the `terms`.
 - A standing permission MUST cover the Company, the account, the action, and every term of the
   revision, and still be in effect.
 - An approval covers one revision. When a new revision arrives, the Personal Agent needs a new
